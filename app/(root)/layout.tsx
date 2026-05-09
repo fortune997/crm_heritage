@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import "./globals.css";
+
 
 export const metadata: Metadata = {
-    title: "Se Connecter - HERITAGE",
+    title: "CRM - HERITAGE",
     description: "Page de connexion du CRM Heritage",
 };
 
@@ -13,7 +13,7 @@ export default function DashBoardLayout({
 }>) {
     return (
         <div>
-            <body className="min-h-full flex flex-col">{children}</body>
+            <div className="min-h-full flex flex-col">{children}</div>
         </div>
     );
 }

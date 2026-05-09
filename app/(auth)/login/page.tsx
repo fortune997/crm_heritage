@@ -1,9 +1,16 @@
-import React from 'react'
+import { LoginForm } from "@/components/forms/LoginForm";
+import AuthHeader from "@/components/shared/AuthHeader";
 
-const LoginPage = () => {
+
+export default function LoginPage() {
     return (
-        <div>LoginPage</div>
-    )
-}
+        <>
+            <AuthHeader
+                title="Connexion"
+                description="Connectez-vous pour accéder à votre espace CRM Heritage."
+            />
 
-export default LoginPage
+            <LoginForm />
+        </>
+    );
+}
