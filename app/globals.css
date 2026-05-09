@@ -1,26 +1,142 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Heritage brand colors */
+  --heritage-green: #0b6b3a;
+  --heritage-green-dark: #095a31;
+  --heritage-green-light: #e8f5ee;
+
+  --heritage-red: #b51224;
+  --heritage-red-dark: #92101e;
+  --heritage-red-light: #fdecef;
+
+  /* Base colors */
+  --background: #f8faf9;
+  --foreground: #0f172a;
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Primary = vert Heritage */
+  --primary: #0b6b3a;
+  --primary-foreground: #ffffff;
+
+  /* Secondary = gris clair */
+  --secondary: #f1f5f3;
+  --secondary-foreground: #0f172a;
+
+  /* Muted */
+  --muted: #f1f5f3;
+  --muted-foreground: #64748b;
+
+  /* Accent */
+  --accent: #e8f5ee;
+  --accent-foreground: #0b6b3a;
+
+  /* Destructive = rouge Heritage */
+  --destructive: #b51224;
+  --destructive-foreground: #ffffff;
+
+  /* Borders / inputs */
+  --border: #d9e2dd;
+  --input: #d9e2dd;
+  --ring: #0b6b3a;
+
+  /* Charts */
+  --chart-1: #0b6b3a;
+  --chart-2: #b51224;
+  --chart-3: #2f855a;
+  --chart-4: #c2410c;
+  --chart-5: #334155;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0b6b3a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f5ee;
+  --sidebar-accent-foreground: #0b6b3a;
+  --sidebar-border: #d9e2dd;
+  --sidebar-ring: #0b6b3a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-heritage-green: var(--heritage-green);
+  --color-heritage-green-dark: var(--heritage-green-dark);
+  --color-heritage-green-light: var(--heritage-green-light);
+
+  --color-heritage-red: var(--heritage-red);
+  --color-heritage-red-dark: var(--heritage-red-dark);
+  --color-heritage-red-light: var(--heritage-red-light);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
 }
