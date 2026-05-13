@@ -5,6 +5,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const createClient = () =>
     createBrowserClient(
-        supabaseUrl!,
-        supabaseKey!,
+        "https://etmatyqawktbyaezzcks.supabase.co",
+        "sb_publishable_l_VCQcY9gVzG4xlx4Tvelg_cn5bQLhd"
     );

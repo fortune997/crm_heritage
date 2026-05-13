@@ -3,7 +3,7 @@ import { AppLogo } from './AppLogo'
 
 const LeftSideAuth = () => {
     return (
-        <section className="hidden bg-gradient-to-br from-[#0F482A] via-[#0F6739] to-[#B51224] p-10 text-white lg:flex lg:flex-col lg:justify-between">
+        <section className="hidden bg-gradient-to-br from-[#0F482A] via-[#0F6739] to-[#082B18] p-10 text-white lg:flex lg:flex-col lg:justify-between">
 
 
             <div className='w-full'>

@@ -9,7 +9,6 @@ export default function LoginPage() {
                 title="Connexion"
                 description="Connectez-vous pour accéder à votre espace CRM Heritage."
             />
-
             <LoginForm />
         </>
     );

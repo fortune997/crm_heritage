@@ -19,12 +19,17 @@ import {
 } from "@/components/ui/field";
 import { LoginFormValues, loginSchema } from "@/lib/validations/schema";
 import router from "next/router";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export function LoginForm() {
     const router = useRouter();
+    const { signIn } = useAuth();
+
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [authError, setAuthError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -41,8 +46,40 @@ export function LoginForm() {
         setAuthError(null);
 
         console.log(values)
+        try {
+            setLoading(true);
+            const result = await signIn(values.email, values.password);
+            console.log(result)
 
-        router.push("/dashboard");
+
+            if (result.success) {
+                toast.success("Connexion réussie 🎉");
+                router.push(`/admin/companies`);
+            } else {
+                if (result.error === "AuthApiError: Invalid login credentials") {
+                    toast.error("Adresse email ou mot de passe incorrect 🚫");
+                }
+                if (result.error === "AuthApiError: Email not confirmed") {
+                    toast.error("Vous n'avez pas encore confirmé votre email", {
+                        description:
+                            "Veuillez vous rendre dans la messagerie que vous avez choisie pour vérifier votre adresse",
+                    });
+                }
+                // Optionnel : gérer d'autres erreurs ici
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error(
+                    "Erreur inattendue lors de la connexion ❌ " + error.message
+                );
+            } else {
+                toast.error("Erreur inattendue lors de la connexion ❌");
+            }
+        } finally {
+            setLoading(false);
+        }
+
+
 
     }
 
