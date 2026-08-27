@@ -1,15 +1,16 @@
 import supabase from "@/core/lib/supabase";
 import type { TimeEntry, ApiResponse } from "@/core/types/pointages/api";
-import { TProfile } from "@/core/types/type";
+import { HeritageUser } from "@/core/types/profiles";
+
 
 export interface DailyAttendance {
-  employee: TProfile;
+  employee: HeritageUser;
   timeEntry: TimeEntry | null;
   status: "present" | "late" | "absent";
 }
 
 export interface EmployeeStats {
-  employee: TProfile;
+  employee: HeritageUser;
   totalDays: number;
   presentDays: number;
   lateDays: number;
@@ -36,7 +37,7 @@ export interface MonthlyStatsLead {
   month: string;
   month_num: number;
   year: number;
- 
+
 }
 
 
@@ -140,7 +141,7 @@ export class AdminService {
     startDate?: string;
     endDate?: string;
     status?: string;
-  }): Promise<ApiResponse<(TimeEntry & { employee: TProfile })[]>> {
+  }): Promise<ApiResponse<(TimeEntry & { employee: HeritageUser })[]>> {
     try {
       let query = supabase
         .from("time_entries")
@@ -298,7 +299,7 @@ export class AdminService {
    */
   static async searchEmployees(
     query: string
-  ): Promise<ApiResponse<TProfile[]>> {
+  ): Promise<ApiResponse<HeritageUser[]>> {
     try {
       const { data, error } = await supabase
         .from("profiles")

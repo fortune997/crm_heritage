@@ -14,9 +14,43 @@ import { useSidebarData } from "@/core/utils/const/nav-item-sidebar";
 import { TeamSwitcher } from "./TeamsWitcher";
 import { NavUser } from "./NavUser";
 import { NavMain } from "./NavMain";
+import { useAuth } from "@/contexts/AuthContext";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+function SidebarSkeleton() {
+    return (
+        <Sidebar collapsible="icon">
+            <SidebarHeader>
+                <div className="h-10 rounded-md bg-muted animate-pulse" />
+            </SidebarHeader>
+
+            <SidebarContent className="space-y-3 p-3">
+                <div className="h-8 rounded-md bg-muted animate-pulse" />
+                <div className="h-8 rounded-md bg-muted animate-pulse" />
+                <div className="h-8 rounded-md bg-muted animate-pulse" />
+            </SidebarContent>
+
+            <SidebarFooter>
+                <div className="h-10 rounded-md bg-muted animate-pulse" />
+            </SidebarFooter>
+        </Sidebar>
+    );
+}
+
+
+export function AppSidebar(
+    { ...props }: React.ComponentProps<typeof Sidebar>
+) {
+
+    const { loading } = useAuth();
+
     const dataSidebar = useSidebarData();
+
+
+    if (loading) {
+        return <SidebarSkeleton />;
+    }
+
 
     return (
         <Sidebar collapsible="icon" {...props}>

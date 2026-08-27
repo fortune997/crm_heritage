@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ReactQueryProvider from "@/core/lib/ReactQueryProvider";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "next-themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,8 +39,14 @@ export default function RootLayout({
       >
         <ReactQueryProvider>
           <AuthProvider>
-            {children}
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >{children}</ThemeProvider>
           </AuthProvider>
+
         </ReactQueryProvider>
 
         <Toaster richColors position="bottom-right" closeButton />

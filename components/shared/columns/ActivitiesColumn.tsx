@@ -18,23 +18,20 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+
+import { ProspectActivity } from "@/core/types/activities";
+import { StatusBadge } from "./ProspectColumns";
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
+    DropdownMenuItem,
+    DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 
-import type {
-    Activity,
-    ActivityPriority,
-    ActivityStatus,
-    ActivityType,
-} from "@/types";
-
-function formatDate(value?: string) {
+function formatDate(value?: string | null) {
     if (!value) return "Non défini";
 
     return new Intl.DateTimeFormat("fr-FR", {
@@ -43,13 +40,12 @@ function formatDate(value?: string) {
         year: "numeric",
     }).format(new Date(value));
 }
-
-function getActivityTypeLabel(type: ActivityType) {
-    const labels: Record<ActivityType, string> = {
-        appel: "Appel",
-        whatsapp: "WhatsApp",
-        email: "Email",
-        visite: "Visite",
+function getActivityTypeLabel(type: string) {
+    const labels: Record<string, string> = {
+        Appel: "Appel",
+        WhatsApp: "WhatsApp",
+        Visite: "Visite",
+        Email: "Email",
         relance: "Relance",
         rendez_vous: "Rendez-vous",
         note: "Note",
@@ -61,8 +57,8 @@ function getActivityTypeLabel(type: ActivityType) {
     return labels[type];
 }
 
-function getStatusLabel(status: ActivityStatus) {
-    const labels: Record<ActivityStatus, string> = {
+function getStatusLabel(status: string) {
+    const labels: Record<string, string> = {
         a_faire: "À faire",
         en_cours: "En cours",
         terminee: "Terminée",
@@ -73,33 +69,19 @@ function getStatusLabel(status: ActivityStatus) {
     return labels[status];
 }
 
-function StatusBadge({ status }: { status: ActivityStatus }) {
-    const className: Record<ActivityStatus, string> = {
-        a_faire: "border-blue-500/20 bg-blue-500/10 text-blue-600",
-        en_cours: "border-yellow-500/20 bg-yellow-500/10 text-yellow-700",
-        terminee: "border-green-500/20 bg-green-500/10 text-green-600",
-        en_retard: "border-red-500/20 bg-red-500/10 text-red-600",
-        annulee: "border-muted bg-muted text-muted-foreground",
-    };
 
-    return (
-        <Badge variant="outline" className={className[status]}>
-            {getStatusLabel(status)}
-        </Badge>
-    );
-}
 
-function PriorityBadge({ priority }: { priority: ActivityPriority }) {
-    const labels: Record<ActivityPriority, string> = {
+function PriorityBadge({ priority }: { priority: string }) {
+    const labels: Record<string, string> = {
         faible: "Faible",
-        moyenne: "Moyenne",
+        Normale: "Normale",
         haute: "Haute",
         urgente: "Urgente",
     };
 
-    const className: Record<ActivityPriority, string> = {
+    const className: Record<string, string> = {
         faible: "border-border bg-muted text-muted-foreground",
-        moyenne: "border-yellow-500/20 bg-yellow-500/10 text-yellow-700",
+        Normale: "border-yellow-500/20 bg-yellow-500/10 text-yellow-700",
         haute: "border-orange-500/20 bg-orange-500/10 text-orange-600",
         urgente: "border-red-500/20 bg-red-500/10 text-red-600",
     };
@@ -111,7 +93,7 @@ function PriorityBadge({ priority }: { priority: ActivityPriority }) {
     );
 }
 
-export const activityColumns: ColumnDef<Activity>[] = [
+export const activityColumns: ColumnDef<ProspectActivity>[] = [
     {
         accessorKey: "title",
         header: ({ column }) => (
@@ -129,7 +111,7 @@ export const activityColumns: ColumnDef<Activity>[] = [
 
             return (
                 <div className="space-y-1">
-                    <div className="font-medium text-foreground">{activity.title}</div>
+                    <div className="font-medium text-foreground">{activity.titre}</div>
                     <div className="line-clamp-1 text-xs text-muted-foreground">
                         {activity.description ?? "Aucune description"}
                     </div>
@@ -145,10 +127,10 @@ export const activityColumns: ColumnDef<Activity>[] = [
 
             return (
                 <div>
-                    <div className="font-medium">{activity.targetName}</div>
+                    <div className="font-medium">{activity.prospects?.full_name}</div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Phone className="size-3" />
-                        {activity.targetPhone ?? "Téléphone non renseigné"}
+                        {activity.prospects?.phone ?? "Téléphone non renseigné"}
                     </div>
                 </div>
             );
@@ -159,15 +141,15 @@ export const activityColumns: ColumnDef<Activity>[] = [
         header: "Type contact",
         cell: ({ row }) => (
             <Badge variant="secondary">
-                {row.original.targetType === "client" ? "Client" : "Prospect"}
+                {row.original.prospects?.interest_type === "client" ? "Client" : "Prospect"}
             </Badge>
         ),
     },
     {
-        accessorKey: "type",
+        accessorKey: "canal",
         header: "Canal",
         cell: ({ row }) => (
-            <Badge variant="outline">{getActivityTypeLabel(row.original.type)}</Badge>
+            <Badge variant="outline">{getActivityTypeLabel(row.original.canal_relance)}</Badge>
         ),
     },
     {
@@ -180,29 +162,29 @@ export const activityColumns: ColumnDef<Activity>[] = [
                 <div className="flex items-center gap-2 text-sm">
                     <CalendarClock className="size-4 text-muted-foreground" />
                     <span>
-                        {formatDate(activity.dueDate)}
-                        {activity.dueTime ? ` à ${activity.dueTime}` : ""}
+                        {formatDate(activity.prochain_relance)}
+
                     </span>
                 </div>
             );
         },
     },
     {
-        accessorKey: "priority",
+        accessorKey: "priorite",
         header: "Priorité",
-        cell: ({ row }) => <PriorityBadge priority={row.original.priority} />,
+        cell: ({ row }) => <PriorityBadge priority={row.original.priorite} />,
     },
     {
         accessorKey: "status",
         header: "Statut",
-        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        cell: ({ row }) => <StatusBadge status={row.original.prospects?.status} />,
     },
     {
         accessorKey: "assignedTo",
         header: "Commercial",
         cell: ({ row }) => (
             <span className="text-sm text-muted-foreground">
-                {row.original.assignedTo ?? "Non assigné"}
+                {row.original.assigned_to ?? "Non assigné"}
             </span>
         ),
     },
@@ -221,35 +203,37 @@ export const activityColumns: ColumnDef<Activity>[] = [
                         </DropdownMenuTrigger>
 
                         <DropdownMenuContent align="end" className="w-52">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuGroup>
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                            <DropdownMenuItem>
-                                <CheckCircle2 className="mr-2 size-4" />
-                                Marquer comme terminée
-                            </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <CheckCircle2 className="mr-2 size-4" />
+                                    Marquer comme terminée
+                                </DropdownMenuItem>
 
-                            <DropdownMenuItem >
-                                <Link href={`/activites/${activity.id}`}>
-                                    <Eye className="mr-2 size-4" />
-                                    Voir détails
-                                </Link>
-                            </DropdownMenuItem>
+                                <DropdownMenuItem >
+                                    <Link href={`/activites/${activity.id}`}>
+                                        <Eye className="mr-2 size-4" />
+                                        Voir détails
+                                    </Link>
+                                </DropdownMenuItem>
 
-                            <DropdownMenuItem >
-                                <Link
-                                    href={`/activites/${activity.id}/edit`}
-                                >
-                                    <Pencil className="mr-2 size-4" />
-                                    Modifier
-                                </Link>
-                            </DropdownMenuItem>
+                                <DropdownMenuItem >
+                                    <Link
+                                        href={`/activites/${activity.id}/edit`}
+                                    >
+                                        <Pencil className="mr-2 size-4" />
+                                        Modifier
+                                    </Link>
+                                </DropdownMenuItem>
 
-                            <DropdownMenuSeparator />
+                                <DropdownMenuSeparator />
 
-                            <DropdownMenuItem className="text-red-600 focus:text-red-600">
-                                <Trash2 className="mr-2 size-4" />
-                                Supprimer
-                            </DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                                    <Trash2 className="mr-2 size-4" />
+                                    Supprimer
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

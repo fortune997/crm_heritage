@@ -1,9 +1,6 @@
-import React from 'react'
 
-const VisitesPage = () => {
-    return (
-        <div>Visites Page</div>
-    )
+const VisitsDashboardPage = () => {
+    return (<p>En Maintenance</p>)
 }
 
-export default VisitesPage
+export default VisitsDashboardPage

@@ -1,55 +1,77 @@
-import supabase from '@/core/lib/supabase';
 
-type UploadResult = {
+import { createClient } from "@/lib/config/supabase";
+
+export type UploadFileOptions = {
+  bucket: string;
+  folder?: string;
+  file: File;
+};
+
+export type UploadResult = {
   success: boolean;
+  path?: string;
   url?: string;
   error?: string;
 };
+const supabase = createClient()
+export async function uploadFileToSupabase({
+  bucket,
+  folder = "",
+  file,
+}: UploadFileOptions): Promise<UploadResult> {
 
-export async function uploadFileToSupabase(file: File, bucketName: string): Promise<UploadResult> {
   try {
     if (!file) {
-      return { success: false, error: 'Aucun fichier fourni.' };
-    }
-
-    if (!bucketName) {
-      return { success: false, error: 'Nom du bucket manquant.' };
-    }
-
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from(bucketName)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
-
-    if (uploadError) {
-      return { success: false, error: `Échec de l'upload : ${uploadError.message}` };
-    }
-
-    // Récupérer l'URL publique
-    const { data: publicUrlData } = supabase.storage
-      .from(bucketName)
-      .getPublicUrl(filePath);
-
-    if (!publicUrlData?.publicUrl) {
       return {
         success: false,
-        error: "Impossible de récupérer l'URL publique",
+        error: "Aucun fichier fourni.",
       };
     }
 
-    return { success: true, url: publicUrlData.publicUrl };
-  } catch (error) {
+    const extension = file.name.split(".").pop();
+
+    const fileName = `${crypto.randomUUID()}.${extension}`;
+
+    const filePath = folder
+      ? `${folder}/${fileName}`
+      : fileName;
+
+    const { error } = await supabase.storage
+      .from(bucket)
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+    if (error) {
+      console.error(error);
+      console.error(JSON.stringify(error, null, 2));
+    }
+
+    console.log(await supabase.auth.getSession());
+
+    if (error) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(filePath);
+
+    console.log('data UP', data)
+
+
+    return {
+      success: true,
+      path: filePath,
+      url: data.publicUrl,
+    };
+  } catch (e) {
     return {
       success: false,
-      error: `Une erreur inattendue s'est produite : ${
-        error instanceof Error ? error.message : String(error)
-      }`,
+      error: e instanceof Error ? e.message : "Erreur inconnue",
     };
   }
 }

@@ -1,20 +1,20 @@
 'use client'
 
 import { useAuth } from "@/contexts/AuthContext";
-import { TPermissionName } from "@/core/types/type";
+import { TPermissions } from "../types/permissions";
+
 
 export function usePermissions() {
     const { role, permissions, access_scope } = useAuth();
+    const isSuperAdmin = role?.name === "SUPER_ADMIN";
 
-    const isSuperAdmin = role === "SUPER_ADMIN" && access_scope === "global";
-
-    const can = (permission: TPermissionName) => {
+    const can = (permission: TPermissions) => {
         if (isSuperAdmin) return true;
 
         return permissions.includes(permission);
     };
 
-    const canAny = (requiredPermissions: TPermissionName[]) => {
+    const canAny = (requiredPermissions: TPermissions[]) => {
         if (isSuperAdmin) return true;
 
         return requiredPermissions.some((permission) =>
@@ -22,7 +22,7 @@ export function usePermissions() {
         );
     };
 
-    const canAll = (requiredPermissions: TPermissionName[]) => {
+    const canAll = (requiredPermissions: TPermissions[]) => {
         if (isSuperAdmin) return true;
 
         return requiredPermissions.every((permission) =>

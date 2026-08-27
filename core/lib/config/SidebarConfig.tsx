@@ -1,5 +1,5 @@
-import { SidebarConfig } from "@/core/utils/const/nav-item-sidebar";
-
+// @ts-nocheck
+import { SidebarConfig } from "@/core/types/permissions";
 import {
     Building2,
     LayoutDashboard,
@@ -15,9 +15,15 @@ import {
     Route,
     Megaphone,
     Share2,
+    Share,
+    User,
+    DollarSign,
+    Banknote,
 } from "lucide-react";
 
+type TRequiredPermissions = string[];
 export const sidebarConfig: SidebarConfig = {
+
     teams: [
         {
             name: "HERITAGE CRM",
@@ -31,32 +37,10 @@ export const sidebarConfig: SidebarConfig = {
             title: "Tableau de bord",
             url: "/dashboard",
             icon: LayoutDashboard,
-            requiredPermissions: ["dashboard.read"],
+            requiredPermissions: ["dashboard.view"],
         },
 
-        {
-            title: "Administration",
-            url: "/admin",
-            icon: ShieldCheck,
-            requiredPermissions: ["admin.access"],
-            items: [
-                {
-                    title: "Entreprises",
-                    url: "/admin/companies",
-                    requiredPermissions: ["company.read"],
-                },
-                {
-                    title: "Utilisateurs",
-                    url: "/admin/users",
-                    requiredPermissions: ["user.read"],
-                },
-                {
-                    title: "Rôles",
-                    url: "/admin/roles",
-                    requiredPermissions: ["role.read"],
-                },
-            ],
-        },
+
 
         {
             title: "Marketing",
@@ -82,12 +66,7 @@ export const sidebarConfig: SidebarConfig = {
                     icon: Activity,
                     requiredPermissions: ["activity.read"],
                 },
-                {
-                    title: "Corporate",
-                    url: "/marketing/corporate",
-                    icon: BriefcaseBusiness,
-                    requiredPermissions: ["corporate.read"],
-                },
+
             ],
         },
         {
@@ -120,25 +99,76 @@ export const sidebarConfig: SidebarConfig = {
         },
         {
             title: "Topographe",
-            url: "/topography",
+            url: "/topographiques",
             icon: MapPinned,
             requiredPermissions: ["topography.read"],
             items: [
                 {
                     title: "Sites",
-                    url: "/sites",
-                    icon: Map,
+                    url: "/topographiques/sites",
                     requiredPermissions: ["site.read"],
                 },
                 {
                     title: "Visites",
-                    url: "/visits",
-                    icon: Route,
+                    url: "/topographiques/visites",
                     requiredPermissions: ["visit.read"],
+                },
+                {
+                    title: "Rapport Visites",
+                    url: "/topographiques/rapport",
+                    requiredPermissions: [],
+                },
+                {
+                    title: "Dossier",
+                    url: "/topographiques/dossier",
+                    requiredPermissions: [],
                 },
             ],
         },
-
+        {
+            title: "Comptabilité",
+            url: "/comptabilite",
+            icon: Banknote,
+            requiredPermissions: ["accounting.view"],
+            items: [
+                {
+                    title: "Ventes",
+                    url: "/comptabilite/ventes",
+                    icon: Banknote,
+                    requiredPermissions: ["sales.view"],
+                },
+                {
+                    title: "Paiements",
+                    url: "/comptabilite/paiements",
+                    icon: DollarSign,
+                    requiredPermissions: ["payments.view"],
+                },
+                /* {
+                    title: "Reçus",
+                    url: "/comptabilite/recus",
+                    icon: Banknote,
+                    requiredPermissions: ["receipts.view"],
+                },
+                {
+                    title: "Factures",
+                    url: "/comptabilite/factures",
+                    icon: BriefcaseBusiness,
+                    requiredPermissions: ["invoices.view"],
+                },
+                {
+                    title: "Rapports financiers",
+                    url: "/comptabilite/rapports",
+                    icon: Activity,
+                    requiredPermissions: ["financial_reports.view"],
+                }, */
+                {
+                    title: "Dépenses",
+                    url: "/comptabilite/depenses",
+                    icon: DollarSign,
+                    requiredPermissions: ["expenses.view"],
+                },
+            ],
+        },
         {
             title: "Digital",
             url: "/digital",
@@ -146,8 +176,14 @@ export const sidebarConfig: SidebarConfig = {
             requiredPermissions: ["digital.read"],
             items: [
                 {
+                    title: "Overview",
+                    url: "/digital",
+                    icon: Share,
+                    requiredPermissions: ["acquisition_channel.read"],
+                },
+                {
                     title: "Canaux d’acquisition",
-                    url: "/digital/acquisition-channels",
+                    url: "/digital/channel-acquisition",
                     icon: Share2,
                     requiredPermissions: ["acquisition_channel.read"],
                 },
@@ -156,15 +192,34 @@ export const sidebarConfig: SidebarConfig = {
 
         {
             title: "Paramètres",
-            url: "/settings",
+            url: "/users",
             icon: Settings,
             requiredPermissions: ["settings.read"],
             items: [
                 {
-                    title: "Canaux d’acquisition",
-                    url: "/digital/acquisition-channels",
+                    title: "Mon Profil",
+                    url: "/users/settings",
                     icon: Share2,
-                    requiredPermissions: ["acquisition_channel.read"],
+                    requiredPermissions: ["settings.read"],
+                },
+
+            ],
+        },
+        {
+            title: "Administration",
+            url: "/admin",
+            icon: ShieldCheck,
+            requiredPermissions: ["user.read"],
+            items: [
+                {
+                    title: "Utilisateurs",
+                    url: "/admin/users",
+                    requiredPermissions: ["user.read"],
+                },
+                {
+                    title: "Rôles",
+                    url: "/admin/roles",
+                    requiredPermissions: ["role.read"],
                 },
             ],
         },

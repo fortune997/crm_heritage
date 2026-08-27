@@ -25,8 +25,6 @@ import { toast } from "sonner";
 export function LoginForm() {
     const router = useRouter();
     const { signIn } = useAuth();
-
-
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [authError, setAuthError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -49,12 +47,10 @@ export function LoginForm() {
         try {
             setLoading(true);
             const result = await signIn(values.email, values.password);
-            console.log(result)
-
 
             if (result.success) {
                 toast.success("Connexion réussie 🎉");
-                router.push(`/admin/companies`);
+                router.push(`/users/settings`);
             } else {
                 if (result.error === "AuthApiError: Invalid login credentials") {
                     toast.error("Adresse email ou mot de passe incorrect 🚫");
@@ -65,7 +61,7 @@ export function LoginForm() {
                             "Veuillez vous rendre dans la messagerie que vous avez choisie pour vérifier votre adresse",
                     });
                 }
-                // Optionnel : gérer d'autres erreurs ici
+
             }
         } catch (error) {
             if (error instanceof Error) {

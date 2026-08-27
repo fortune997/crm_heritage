@@ -6,13 +6,15 @@ import { Session, User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { TPermissionName, TProfile, TRoleName } from '@/core/types/type';
+import { HeritageUser } from '@/core/types/profiles';
+import { TPermissions } from '@/core/types/permissions';
+import { TRoles } from '@/core/types/role';
 
 interface AuthContextType {
     user: User | null;
-    profile: TProfile | null;
-    role: TRoleName | null;
-    permissions: TPermissionName[];
+    profile: HeritageUser | null;
+    role: TRoles | null;
+    permissions: TPermissions[];
     access_scope: 'global' | 'company' | null;
     company_id: string | null;
     loading: boolean;
@@ -27,7 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 type PermissionRow = {
     id: string;
-    name: TPermissionName;
+    name: TPermissions;
     module?: string | null;
 };
 
@@ -37,7 +39,7 @@ type RolePermissionRow = {
 
 type RoleRow = {
     id: string;
-    name: TRoleName;
+    name: TRoles;
     role_permissions: RolePermissionRow[] | null;
 };
 
@@ -51,9 +53,9 @@ type CompanyMemberRow = {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [profile, setProfile] = useState<TProfile | null>(null);
-    const [role, setRole] = useState<TRoleName | null>(null);
-    const [permissions, setPermissions] = useState<TPermissionName[]>([]);
+    const [profile, setProfile] = useState<HeritageUser | null>(null);
+    const [role, setRole] = useState<TRoles | null>(null);
+    const [permissions, setPermissions] = useState<TPermissions[]>([]);
     const [accessScope, setAccessScope] = useState<'global' | 'company' | null>(null);
     const [companyId, setCompanyId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -83,32 +85,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return null;
         }
 
-        setProfile(data as TProfile | null);
-        return data as TProfile | null;
+        setProfile(data as HeritageUser | null);
+        return data as HeritageUser | null;
     }, []);
 
     const loadUserAccess = useCallback(async (userId: string) => {
         const { data, error } = await supabase
-            .from('company_members')
+            .from("user_roles")
             .select(`
-        id,
-        company_id,
-        access_scope,
-        status,
+        role_id,
         roles (
-          id,
-          name,
-          role_permissions (
-            permissions (
-              id,
-              name,
-              module
+            id,
+            name,
+            role_permissions (
+                permissions (
+                    id,
+                    name,
+                    module
+                )
             )
-          )
         )
-      `)
-            .eq('profile_id', userId)
-            .eq('status', 'active')
+    `)
+            .eq("user_id", userId)
             .maybeSingle();
 
         if (error) {
@@ -155,7 +153,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 .filter(Boolean) ?? [];
 
         setRole(roleName);
-        setPermissions(permissionNames as TPermissionName[]);
+        setPermissions(permissionNames as TPermissions[]);
         setAccessScope(member.access_scope);
         setCompanyId(member.company_id);
     }, []);
@@ -258,11 +256,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 };
             }
 
+
+            // Mise à jour dernière connexion
+            const { error: loginUpdateError } = await supabase
+                .from("profiles")
+                .update({
+                    last_login_at: new Date().toISOString(),
+                })
+                .eq("id", data.session.user.id);
+
+
+            if (loginUpdateError) {
+                console.error(
+                    "Erreur mise à jour dernière connexion:",
+                    loginUpdateError
+                );
+            }
+
+
             await loadSession(data.session);
 
             queryClient.invalidateQueries({ queryKey: ['profile'] });
 
             return { success: true };
+
         } catch (error) {
             console.error('Erreur inconnue connexion:', error);
 
@@ -270,6 +287,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 success: false,
                 error: 'Erreur inconnue ❗',
             };
+
         } finally {
             setLoading(false);
         }

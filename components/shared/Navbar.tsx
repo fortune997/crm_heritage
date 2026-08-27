@@ -5,24 +5,17 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { BellDot, Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { UserProfileDropdown } from "../dialog/UseProfileDropdown";
+import { NotificationDropdown } from "../dialog/NotificationDropdown";
+import { ThemeToggle } from "./ThemeToggles";
 
 
 
 
 
 export default function Navbar() {
-    const { signOut } = useAuth();
+    const { signOut, profile } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
@@ -55,16 +48,14 @@ export default function Navbar() {
 
                         {/* Actions 
             <BtnFullScreen />*/}
-                        {/* <ThemeToggle /> */}
-                        <BellDot className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-                        {/* <DropdownLegend /> */}
+
 
                         <Button variant="ghost" size="icon" title="Paramètres">
                             <Settings className="h-5 w-5 animate-spin" />
                             <span className="sr-only">Paramètres</span>
                         </Button>
 
-                        <DropdownMenu>
+                        {/*  <DropdownMenu>
                             <DropdownMenuTrigger >
                                 <Button
                                     variant="ghost"
@@ -74,7 +65,7 @@ export default function Navbar() {
                                         {/*  <AvatarImage
                                             src={profile?.photo_url}
                                             alt={`photo`}
-                                        /> */}
+                                        /> *
                                         <AvatarFallback>
                                             <User className="h-5 w-5" />
                                         </AvatarFallback>
@@ -104,7 +95,13 @@ export default function Navbar() {
                                     Déconnexion
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DropdownMenu> */}
+
+                        <div className="flex items-center gap-2">
+                            <ThemeToggle />
+                            <NotificationDropdown />
+                            <UserProfileDropdown profile={profile} />
+                        </div>
                     </div>
                 </div>
             </div>

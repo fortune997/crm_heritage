@@ -1,4 +1,4 @@
-// app/dashboard/marketing/prospects/[id]/page.tsx
+/* // app/dashboard/marketing/prospects/[id]/page.tsx
 
 "use client";
 
@@ -987,5 +987,23 @@ function InfoItem({
             <p className="text-sm text-muted-foreground">{label}</p>
             <p className="font-medium">{value || "Non renseigné"}</p>
         </div>
+    );
+} */
+
+import { Customer360Page } from "@/components/shared/customer-360-page";
+
+interface PageProps {
+    params: Promise<{
+        id: string;
+    }>;
+}
+
+export default async function Page({
+    params,
+}: PageProps) {
+    const { id } = await params;
+
+    return (
+        <Customer360Page />
     );
 }

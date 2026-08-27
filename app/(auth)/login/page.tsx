@@ -1,8 +1,10 @@
+"use client"
+
 import { LoginForm } from "@/components/forms/LoginForm";
 import AuthHeader from "@/components/shared/AuthHeader";
 
 
-export default function LoginPage() {
+const LoginPage = () => {
     return (
         <>
             <AuthHeader
@@ -13,3 +15,5 @@ export default function LoginPage() {
         </>
     );
 }
+
+export default LoginPage

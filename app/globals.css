@@ -70,6 +70,70 @@
   --sidebar-ring: #0b6b3a;
 }
 
+/* Dark mode */
+.dark {
+  /* Heritage brand colors in dark mode */
+  --heritage-green: #22c55e;
+  --heritage-green-dark: #16a34a;
+  --heritage-green-light: #052e1a;
+
+  --heritage-red: #ef4444;
+  --heritage-red-dark: #dc2626;
+  --heritage-red-light: #3f0d12;
+
+  /* Base colors */
+  --background: #020617;
+  --foreground: #f8fafc;
+
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+
+  /* Primary = vert Heritage lumineux */
+  --primary: #22c55e;
+  --primary-foreground: #052e16;
+
+  /* Secondary */
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+
+  /* Muted */
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  /* Accent */
+  --accent: #052e1a;
+  --accent-foreground: #86efac;
+
+  /* Destructive */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Borders / inputs */
+  --border: #1e293b;
+  --input: #334155;
+  --ring: #22c55e;
+
+  /* Charts */
+  --chart-1: #22c55e;
+  --chart-2: #ef4444;
+  --chart-3: #38bdf8;
+  --chart-4: #f97316;
+  --chart-5: #a78bfa;
+
+  /* Sidebar */
+  --sidebar: #020617;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #22c55e;
+  --sidebar-primary-foreground: #052e16;
+  --sidebar-accent: #0f172a;
+  --sidebar-accent-foreground: #86efac;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #22c55e;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -98,6 +162,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
   --color-heritage-green: var(--heritage-green);
   --color-heritage-green-dark: var(--heritage-green-dark);

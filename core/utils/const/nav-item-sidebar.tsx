@@ -1,14 +1,15 @@
 import { usePermissions } from "@/core/hooks/usePermissions";
 import { sidebarConfig } from "@/core/lib/config/SidebarConfig";
+import { TPermissions } from "@/core/types/permissions";
 
 
-import type { TPermissionName } from "@/core/types/type";
+
 import type { LucideIcon } from "lucide-react";
 
 export type SidebarSubItem = {
   title: string;
   url: string;
-  requiredPermissions?: TPermissionName[];
+  requiredPermissions?: TPermissions[];
 };
 
 export type SidebarItem = {
@@ -16,7 +17,7 @@ export type SidebarItem = {
   url?: string;
   icon?: LucideIcon;
   isActive?: boolean;
-  requiredPermissions?: TPermissionName[];
+  requiredPermissions?: TPermissions[];
   items?: SidebarSubItem[];
 };
 
@@ -32,40 +33,30 @@ export type SidebarConfig = {
 export function useSidebarData() {
   const { canAny, isSuperAdmin } = usePermissions();
 
+
+
   const navMain = sidebarConfig.navMain
-    .filter((item) => {
-      if (isSuperAdmin) return true;
-
-      if (!item.requiredPermissions?.length) return true;
-
-      return canAny(item.requiredPermissions);
-    })
     .map((item) => {
-      const filteredItems = item.items?.filter((subItem) => {
-        if (isSuperAdmin) return true;
-
+      const items = item.items?.filter((subItem) => {
         if (!subItem.requiredPermissions?.length) return true;
-
         return canAny(subItem.requiredPermissions);
       });
 
       return {
         ...item,
-        items: filteredItems,
+        items,
       };
     })
     .filter((item) => {
-      /**
-       * Si le menu n'a pas de sous-menu, on le garde.
-       * Exemple: Dashboard
-       */
-      if (!item.items) return true;
+      if (isSuperAdmin) return true;
 
-      /**
-       * Si le menu a des sous-menus, on garde seulement
-       * ceux qui ont au moins un sous-menu visible.
-       */
-      return item.items.length > 0;
+      const parentVisible =
+        !item.requiredPermissions?.length ||
+        canAny(item.requiredPermissions);
+
+      const childVisible = item.items && item.items.length > 0;
+
+      return parentVisible || childVisible;
     });
 
   return {

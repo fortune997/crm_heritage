@@ -1,28 +1,96 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAcitvities, newActivities } from "../services/activities-service";
-import { TActivities } from "../types/type";
+import { fetchAcitvities, newActivities, updateActivity } from "../services/activites/activities-service";
 import { toast } from "sonner";
+import { ProspectActivity } from "../types/activities";
+
+export const ACTIVITIES_QUERY_KEY = ["prospect_activities"] as const;
 
 export const useAcitivities = () => {
-  return useQuery<TActivities[]>({
-      queryKey: ['activites'],
-      queryFn: () => fetchAcitvities(),
-     
+  return useQuery({
+    queryKey: ACTIVITIES_QUERY_KEY,
+    queryFn: () => fetchAcitvities(),
+
   });
 };
 
-export const useNewAcitivities = () => {
 
-    const queryClient = useQueryClient();
-  
-    return useMutation({
-      mutationFn: newActivities,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["activites"] });
-        toast.success("✅ Nouvelle activité !");
-      },
-      onError: (error: any) => {
-        toast.error(`❌ ${error.message || "Erreur inconnue."}`);
-      },
-    });
-  };
+
+const useCreateProspectActivity = () => {
+
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: newActivities,
+    onSuccess: (payload) => {
+      toast.success(
+        "Activité créée avec succès",
+        {
+          description:
+            "L'activité a été ajoutée au suivi du prospect.",
+        }
+      );
+      queryClient.invalidateQueries({
+        queryKey: ACTIVITIES_QUERY_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ACTIVITIES_QUERY_KEY,
+      });
+
+    },
+    onError: (error) => {
+
+      toast.error(
+        "Erreur lors de la création",
+        {
+          description:
+            error.message,
+        }
+      );
+      console.error(
+        "Erreur création activité :",
+        error
+      );
+    },
+
+  });
+}
+
+
+const useUpdateProspectActivity = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateActivity,
+    onSuccess: () => {
+      toast.success(
+        "Activité mise à jour avec succès",
+        {
+          description:
+            "Le traitement de l'activité a été enregistré.",
+        }
+      );
+      queryClient.invalidateQueries({
+        queryKey: ACTIVITIES_QUERY_KEY,
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        "Erreur lors de la mise à jour",
+        {
+          description:
+            error.message,
+        }
+      );
+      console.error(
+        "Erreur mise à jour activité :",
+        error
+      );
+    },
+  });
+};
+
+
+
+export {
+  useCreateProspectActivity,
+  useUpdateProspectActivity
+}

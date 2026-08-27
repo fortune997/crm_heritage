@@ -21,12 +21,12 @@ import {
 } from "@/components/ui/sidebar";
 
 import type { LucideIcon } from "lucide-react";
-import type { TPermissionName } from "@/core/types/type";
+import { TPermissions } from "@/core/types/permissions";
 
 export type SidebarSubItem = {
     title: string;
     url: string;
-    requiredPermissions?: TPermissionName[];
+    requiredPermissions?: TPermissions[];
 };
 
 export type SidebarItem = {
@@ -34,18 +34,11 @@ export type SidebarItem = {
     url?: string;
     icon?: LucideIcon;
     isActive?: boolean;
-    requiredPermissions?: TPermissionName[];
+    requiredPermissions?: TPermissions[];
     items?: SidebarSubItem[];
 };
 
-export type SidebarConfig = {
-    teams: {
-        name: string;
-        logo: LucideIcon;
-        plan: string;
-    }[];
-    navMain: SidebarItem[];
-};
+
 
 export function NavMain({ items }: { items: SidebarItem[] }) {
     return (
@@ -67,7 +60,7 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
                                     tooltip={item.title}
                                     className="
                     h-10 rounded-lg px-3
-                    text-sm font-medium
+                    text-sm font-medium flex justify-between
                     transition-all duration-200
                     hover:bg-muted hover:text-foreground
                     data-[active=true]:bg-primary/10
@@ -88,14 +81,14 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
                         <Collapsible
                             key={item.title}
                             defaultOpen={item.isActive}
-                            className="group/collapsible"
+                            className="group/collapsible flex justify-between"
                         >
                             <SidebarMenuItem>
                                 <CollapsibleTrigger >
                                     <SidebarMenuButton
                                         tooltip={item.title}
                                         className="
-                      h-10 w-full rounded-lg px-3
+                      h-10 w-full flex justify-between items-center rounded-lg px-3
                       text-sm font-medium
                       transition-all duration-200
                       hover:bg-muted hover:text-foreground
@@ -103,14 +96,14 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
                     "
                                         isActive={item.isActive}
                                     >
-                                        <div className="flex w-full items-center gap-3">
+                                        <div className="flex w-full  justify-between items-center gap-3">
                                             {Icon && <Icon className="size-4 shrink-0" />}
 
                                             <span className="truncate">{item.title}</span>
 
                                             <ChevronRight
                                                 className="
-                          ml-auto size-4 shrink-0
+                          ml-auto size-4 shrink-0 flex justify-between
                           text-muted-foreground
                           transition-transform duration-200
                           group-data-[state=open]/collapsible:rotate-90
@@ -127,13 +120,13 @@ export function NavMain({ items }: { items: SidebarItem[] }) {
                     data-[state=open]:animate-collapsible-down
                   "
                                 >
-                                    <SidebarMenuSub className="ml-4 mt-1 border-l border-border/60 pl-3">
+                                    <SidebarMenuSub className="ml-4 mt-1 border-l flex justify-between border-border/60 pl-3">
                                         {item.items?.map((subItem) => (
                                             <SidebarMenuSubItem key={subItem.title}>
                                                 <SidebarMenuSubButton
 
                                                     className="
-                            h-8 rounded-md px-3
+                            h-8 rounded-md px-3 flex justify-between
                             text-sm text-muted-foreground
                             transition-all duration-200
                             hover:bg-muted hover:text-foreground

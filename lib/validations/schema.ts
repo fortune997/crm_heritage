@@ -40,3 +40,35 @@ export const companySchema = z.object({
 export type CompanyFormValues = z.infer<typeof companySchema>;
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
+
+// Zod schema
+export const prospectSchema = z
+    .object({
+        full_name: z.string().min(1, "Full name is required"),
+        sexe: z.string().min(1, "Sexe is required"),
+        phone: z.string().min(1, "Phone number is required"),
+        site_interesse: z.string().min(1, "Site intéresse"),
+        email: z.string().email("Invalid email address").min(1, "Email is required"),
+        canal_prospection: z.string().min(1, "Source is required"),
+        message: z.string().optional(),
+    })
+
+
+export type ProspectFormValues = z.infer<typeof prospectSchema>;
+
+
+export const activitySchema = z.object({
+    prospect_id: z.string().min(1, "Recherchez un prospect"),
+
+    titre: z.string().min(3, "Le titre est obligatoire"),
+
+    description: z.string().min(5, "La description est obligatoire"),
+
+    canal_relance: z.string().min(1, "Sélectionnez le canal de relance"),
+    statut_activite: z.string().min(1, "Sélectionnez le statut d'activité"),
+
+    prochain_relance: z.date(),
+});
+
+
+export type ActivitiesFormValues = z.infer<typeof activitySchema>;
