@@ -93,151 +93,195 @@ function PriorityBadge({ priority }: { priority: string }) {
     );
 }
 
-export const activityColumns: ColumnDef<ProspectActivity>[] = [
-    {
-        accessorKey: "title",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="px-0 font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Activité
-                <ArrowUpDown className="ml-2 size-4" />
-            </Button>
-        ),
-        cell: ({ row }) => {
-            const activity = row.original;
+export const activityColumns = (
+    canViewAll: boolean
+): ColumnDef<ProspectActivity>[] => [
+        {
+            accessorKey: "title",
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    className="px-0 font-semibold"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Activité
+                    <ArrowUpDown className="ml-2 size-4" />
+                </Button>
+            ),
+            cell: ({ row }) => {
+                const activity = row.original;
 
-            return (
-                <div className="space-y-1">
-                    <div className="font-medium text-foreground">{activity.titre}</div>
-                    <div className="line-clamp-1 text-xs text-muted-foreground">
-                        {activity.description ?? "Aucune description"}
+                return (
+                    <div className="space-y-1">
+                        <div className="font-medium text-foreground">{activity.titre}</div>
+                        <div className="line-clamp-1 text-xs text-muted-foreground">
+                            {activity.description ?? "Aucune description"}
+                        </div>
                     </div>
-                </div>
-            );
+                );
+            },
         },
-    },
-    {
-        accessorKey: "targetName",
-        header: "Client / Prospect",
-        cell: ({ row }) => {
-            const activity = row.original;
+        {
+            accessorKey: "targetName",
+            header: "Client / Prospect",
+            cell: ({ row }) => {
+                const activity = row.original;
 
-            return (
-                <div>
-                    <div className="font-medium">{activity.prospects?.full_name}</div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Phone className="size-3" />
-                        {activity.prospects?.phone ?? "Téléphone non renseigné"}
+                return (
+                    <div>
+                        <div className="font-medium">{activity.prospects?.full_name}</div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Phone className="size-3" />
+                            {activity.prospects?.phone ?? "Téléphone non renseigné"}
+                        </div>
                     </div>
-                </div>
-            );
+                );
+            },
         },
-    },
-    {
-        accessorKey: "targetType",
-        header: "Type contact",
-        cell: ({ row }) => (
-            <Badge variant="secondary">
-                {row.original.prospects?.interest_type === "client" ? "Client" : "Prospect"}
-            </Badge>
-        ),
-    },
-    {
-        accessorKey: "canal",
-        header: "Canal",
-        cell: ({ row }) => (
-            <Badge variant="outline">{getActivityTypeLabel(row.original.canal_relance)}</Badge>
-        ),
-    },
-    {
-        accessorKey: "dueDate",
-        header: "Échéance",
-        cell: ({ row }) => {
-            const activity = row.original;
-
-            return (
-                <div className="flex items-center gap-2 text-sm">
-                    <CalendarClock className="size-4 text-muted-foreground" />
-                    <span>
-                        {formatDate(activity.prochain_relance)}
-
-                    </span>
-                </div>
-            );
+        {
+            accessorKey: "targetType",
+            header: "Type contact",
+            cell: ({ row }) => (
+                <Badge variant="secondary">
+                    {row.original.prospects?.interest_type === "client" ? "Client" : "Prospect"}
+                </Badge>
+            ),
         },
-    },
-    {
-        accessorKey: "priorite",
-        header: "Priorité",
-        cell: ({ row }) => <PriorityBadge priority={row.original.priorite} />,
-    },
-    {
-        accessorKey: "status",
-        header: "Statut",
-        cell: ({ row }) => <StatusBadge status={row.original.prospects?.status} />,
-    },
-    {
-        accessorKey: "assignedTo",
-        header: "Commercial",
-        cell: ({ row }) => (
-            <span className="text-sm text-muted-foreground">
-                {row.original.assigned_to ?? "Non assigné"}
-            </span>
-        ),
-    },
-    {
-        id: "actions",
-        cell: ({ row }) => {
-            const activity = row.original;
-
-            return (
-                <div className="flex justify-end">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger >
-                            <Button variant="ghost" size="icon" className="size-8">
-                                <MoreHorizontal className="size-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent align="end" className="w-52">
-                            <DropdownMenuGroup>
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-                                <DropdownMenuItem>
-                                    <CheckCircle2 className="mr-2 size-4" />
-                                    Marquer comme terminée
-                                </DropdownMenuItem>
-
-                                <DropdownMenuItem >
-                                    <Link href={`/activites/${activity.id}`}>
-                                        <Eye className="mr-2 size-4" />
-                                        Voir détails
-                                    </Link>
-                                </DropdownMenuItem>
-
-                                <DropdownMenuItem >
-                                    <Link
-                                        href={`/activites/${activity.id}/edit`}
-                                    >
-                                        <Pencil className="mr-2 size-4" />
-                                        Modifier
-                                    </Link>
-                                </DropdownMenuItem>
-
-                                <DropdownMenuSeparator />
-
-                                <DropdownMenuItem className="text-red-600 focus:text-red-600">
-                                    <Trash2 className="mr-2 size-4" />
-                                    Supprimer
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            );
+        {
+            accessorKey: "canal",
+            header: "Canal",
+            cell: ({ row }) => (
+                <Badge variant="outline">{getActivityTypeLabel(row.original.canal_relance)}</Badge>
+            ),
         },
-    },
-];
+        {
+            accessorKey: "status",
+            header: "Statut",
+            cell: ({ row }) => <StatusBadge status={row.original.prospects?.status} />,
+        },
+        {
+            accessorKey: "dueDate",
+            header: "Échéance",
+            cell: ({ row }) => {
+                const activity = row.original;
+
+                return (
+                    <div className="flex items-center gap-2 text-sm">
+                        <CalendarClock className="size-4 text-muted-foreground" />
+                        <span>
+                            {formatDate(activity.prochain_relance)}
+
+                        </span>
+                    </div>
+                );
+            },
+        },
+        ...(canViewAll
+            ? [
+                {
+                    id: "created_by",
+
+                    header: "Créé par",
+
+                    cell: ({
+                        row,
+                    }: {
+                        row: {
+                            original: ProspectActivity;
+                        };
+                    }) => {
+                        const creator =
+                            row.original.profiles?.full_name;
+                        const creator_email =
+                            row.original.profiles?.email;
+
+                        if (!creator) {
+                            return (
+                                <span className="text-sm text-muted-foreground">
+                                    Inconnu
+                                </span>
+                            );
+                        }
+
+
+
+                        return (
+                            <div>
+                                <div className="text-sm font-medium">
+                                    {creator || "Utilisateur inconnu"}
+                                </div>
+
+                                {creator_email && (
+                                    <div className="text-xs text-muted-foreground">
+                                        {creator_email}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    },
+                } satisfies ColumnDef<ProspectActivity>,
+            ]
+            : []),
+
+        /*  {
+             accessorKey: "assignedTo",
+             header: "Commercial",
+             cell: ({ row }) => (
+                 <span className="text-sm text-muted-foreground">
+                     {row.original.assigned_to ?? "Non assigné"}
+                 </span>
+             ),
+         }, */
+        {
+            id: "actions",
+            cell: ({ row }) => {
+                const activity = row.original;
+
+                return (
+                    <div className="flex justify-end">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger >
+                                <Button variant="ghost" size="icon" className="size-8">
+                                    <MoreHorizontal className="size-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent align="end" className="w-52">
+                                <DropdownMenuGroup>
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                                    <DropdownMenuItem>
+                                        <CheckCircle2 className="mr-2 size-4" />
+                                        Marquer comme terminée
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem >
+                                        <Link href={`/activites/${activity.id}`}>
+                                            <Eye className="mr-2 size-4" />
+                                            Voir détails
+                                        </Link>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem >
+                                        <Link
+                                            href={`/activites/${activity.id}/edit`}
+                                        >
+                                            <Pencil className="mr-2 size-4" />
+                                            Modifier
+                                        </Link>
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuSeparator />
+
+                                    <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                                        <Trash2 className="mr-2 size-4" />
+                                        Supprimer
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                );
+            },
+        },
+    ];

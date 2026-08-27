@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
+    Backpack,
     CalendarDays,
     CheckCircle2,
     ChevronDown,
@@ -14,6 +15,7 @@ import {
     MoreHorizontal,
     Search,
     SlidersHorizontal,
+    StepBack,
     UserRound,
     X,
     XCircle,
@@ -30,6 +32,8 @@ import FilterSelect from "@/components/visites/FilterSelect";
 import TodayVisitCard from "@/components/visites/TodayVisitCard";
 import TabButton from "@/components/visites/TabButton";
 import StatVisitCard from "@/components/visites/StatVisitCard";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 
 
@@ -43,7 +47,7 @@ export default function CommercialVisitsPage() {
     const [statusFilter, setStatusFilter] = useState<VisitStatus | "all">("all");
     const [typeFilter, setTypeFilter] = useState<VisitType | "all">("all");
     const [resultFilter, setResultFilter] = useState<VisitResult | "all">("all");
-
+    const router = useRouter()
 
     const { profile } = useAuth()
     const { data: myVisites = [] } = useMyVisites(profile?.id ?? '')
@@ -164,21 +168,20 @@ export default function CommercialVisitsPage() {
                 <header className="mb-6">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-                        <div>
-                            <div className="mb-1 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                                <CalendarDays className="h-4 w-4" />
+                        <div className="flex gap-4 items-center">
+                            <Button onClick={() => router.back()} className="mb-1 flex items-center gap-2 text-sm">
+                                <StepBack className="h-4 w-4" />
                                 <span>
-                                    Mercredi 26 août 2026
+                                    Retour
                                 </span>
-                            </div>
+                            </Button >
 
                             <h1 className="text-2xl font-bold tracking-tight">
                                 Mes visites
                             </h1>
 
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Suivez vos visites du jour et consultez
-                                vos rapports précédents.
+                                Suivez vos visites du jour
                             </p>
                         </div>
 

@@ -18,37 +18,72 @@ import { ScheduleVisitDialog } from "@/components/visites/schedule-visit-dialog"
 import { useAcitivities } from "@/core/hooks/useActivities";
 import { Activity } from "@/types";
 import { CalendarPlus, EyeIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { usePermission } from "@/core/hooks/admin/usePermission";
+import { ProspectTableSkeleton } from "@/components/cards/ProspectTableSkeleton";
 
 
-
-
-function isToday(date?: string) {
-    if (!date) return false;
-
-    const today = new Date().toISOString().split("T")[0];
-
-    return date === today;
-}
-
-function isOverdue(activity: Activity) {
-    if (!activity.dueDate) return false;
-    if (activity.status === "terminee" || activity.status === "annulee") {
-        return false;
-    }
-
-    const today = new Date().toISOString().split("T")[0];
-
-    return activity.dueDate < today;
-}
 
 export default function ActivitiesPage() {
-    const [scheduleDialogOpen, setScheduleDialogOpen] =
-        useState(false);
+    const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
     const { data: allActivities = [], isLoading } = useAcitivities()
     const router = useRouter()
 
+    const {
+        data: canViewAll = true,
+        isLoading: isPermissionLoading,
+    } = usePermission("activity.read.all");
+
+    const columns = useMemo(
+        () => activityColumns(canViewAll),
+        [canViewAll]
+    );
+
+    const activityStats = useMemo(() => {
+        const now = new Date();
+
+        const startOfToday = new Date(now);
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const endOfToday = new Date(now);
+        endOfToday.setHours(23, 59, 59, 999);
+
+        const todayCount = allActivities.filter((activity) => {
+            const date = new Date(activity.scheduled_at);
+
+            return date >= startOfToday && date <= endOfToday;
+        }).length;
+
+        const overdueCount = allActivities.filter((activity) => {
+            const date = new Date(activity.scheduled_at);
+
+            return date < startOfToday && activity.status !== "completed";
+        }).length;
+
+        const upcomingCount = allActivities.filter((activity) => {
+            const date = new Date(activity.scheduled_at);
+
+            return date > endOfToday && activity.status !== "completed";
+        }).length;
+
+        const completedTodayCount = allActivities.filter((activity) => {
+            const date = new Date(activity.completed_at ?? "");
+
+            return (
+                activity.status === "completed" &&
+                date >= startOfToday &&
+                date <= endOfToday
+            );
+        }).length;
+
+        return {
+            todayCount,
+            overdueCount,
+            upcomingCount,
+            completedTodayCount,
+        };
+    }, [allActivities]);
 
     if (isLoading) {
         return <ActivitiesPageSkeleton />;
@@ -93,13 +128,13 @@ export default function ActivitiesPage() {
 
             </div>
 
-            {/*  <ActivitySummaryCards
-                todayCount={todayActivities.length}
-                overdueCount={overdueActivities.length}
-                upcomingCount={upcomingActivities.length}
-                completedTodayCount={completedTodayActivities.length}
+            <ActivitySummaryCards
+                todayCount={activityStats.todayCount}
+                overdueCount={activityStats.overdueCount}
+                upcomingCount={activityStats.upcomingCount}
+                completedTodayCount={activityStats.completedTodayCount}
             />
-*/}
+
             <ActivityFollowUpBoard activities={allActivities} />
 
             <Card>
@@ -112,12 +147,15 @@ export default function ActivitiesPage() {
                 </CardHeader>
 
                 <CardContent>
-                    <DataTable
-                        columns={activityColumns}
-                        data={allActivities ?? []}
-                        searchKey="phone"
-                        searchPlaceholder="Rechercher un numéro..."
-                    />
+                    {isLoading || isPermissionLoading ? (
+                        <ProspectTableSkeleton />
+                    ) :
+                        <DataTable
+                            columns={columns}
+                            data={allActivities ?? []}
+                            searchKey="phone"
+                            searchPlaceholder="Rechercher un numéro..."
+                        />}
                 </CardContent>
             </Card>
             <ScheduleVisitDialog

@@ -52,19 +52,19 @@ export const sidebarConfig: SidebarConfig = {
                     title: "Prospects",
                     url: "/marketing/prospects",
                     icon: Users,
-                    requiredPermissions: ["prospect.read"],
+                    requiredPermissions: ["prospect.read", "prospect.read.own"],
                 },
                 {
                     title: "Clients",
                     url: "/marketing/clients",
                     icon: Handshake,
-                    requiredPermissions: ["client.read"],
+                    requiredPermissions: ["client.read", "client.read.own"],
                 },
                 {
                     title: "Activités",
                     url: "/marketing/activities",
                     icon: Activity,
-                    requiredPermissions: ["activity.read"],
+                    requiredPermissions: ["activity.read", "activity.view", "activity.read.own",],
                 },
 
             ],

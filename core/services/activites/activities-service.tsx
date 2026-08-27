@@ -20,7 +20,7 @@ export type UpdateActivityInput = Partial<CreateActivityInput> & {
 export const fetchAcitvities = async () => {
   const { data, error } = await supabase
     .from("prospect_activities")
-    .select(`*, prospects(phone, full_name, canal_prospection, status, created_by)`)
+    .select(`*, prospects(phone, full_name, canal_prospection, status, created_by), profiles(*) `)
     .order("created_at", { ascending: false })
     .limit(20);
 
