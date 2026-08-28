@@ -6,6 +6,7 @@ import { Visit } from "@/core/types/visites/type";
 import { formatDa } from "@/lib/utils";
 import { FileText, MapPin } from "lucide-react";
 import { getResultConfig, getStatusConfig, getTypeLabel } from "./visit-config";
+import { VisitActions } from "./VisitActions";
 
 
 interface HistoryRowProps {
@@ -85,6 +86,16 @@ function HistoryRow({
                         —
                     </span>
                 )}
+            </td>
+
+            <td className="px-5 py-4 text-right">
+
+
+
+                <VisitActions
+                    visit={visit}
+                />
+
             </td>
 
             <td className="px-5 py-4 text-right">

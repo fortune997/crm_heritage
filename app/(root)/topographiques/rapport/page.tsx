@@ -3,7 +3,7 @@
 
 import ReadValue from "@/components/rapport/ReadValue";
 import { useUsersTopographique } from "@/core/hooks/admin/useUsers";
-import { useAssignTopo, useTopoId, useUpdateVisitReport, useVisites } from "@/core/hooks/visites/useVisite";
+import { useAssignTopo, useConfirmedVisits, useTopoId, useUpdateVisitReport, useVisites } from "@/core/hooks/visites/useVisite";
 import { formatDate } from "@/core/lib/utils";
 import { HeritageUser } from "@/core/types/profiles";
 import { Visit } from "@/core/types/visites/type";
@@ -125,7 +125,7 @@ export default function ConfirmedVisitsView() {
     const [surveyorFilter, setSurveyorFilter] = useState("all");
     const [interestFilter, setInterestFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
-    const { data: visitData = [], isLoading, isError, error } = useVisites();
+    const { data: visitData = [], isLoading, isError, error } = useConfirmedVisits();
     const { data: topoData = [] } = useUsersTopographique();
     const { mutate: assign, isPending } = useAssignTopo();
     const {

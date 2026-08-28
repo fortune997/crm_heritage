@@ -1,4 +1,5 @@
-import { UpdateVisitReport, assignedTopographe, fetchAllVisiste, fetchCommercialVisiste, newVisite, updateVisitReport } from "@/core/services/visites/visite-service";
+import supabase from "@/core/lib/supabase";
+import { UpdateVisitReport, UpdateVisitStatusPayload, assignedTopographe, fetchAllVisiste, fetchCommercialVisiste, fetchConfirmedVisits, newVisite, updateVisitReport, updateVisitStatus } from "@/core/services/visites/visite-service";
 import { Visit } from "@/core/types/visites/type";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -32,6 +33,13 @@ const useVisites = () => {
 
     });
 };
+
+const useConfirmedVisits = () => {
+    return useQuery({
+        queryKey: ["visits", "confirmed"],
+        queryFn: fetchConfirmedVisits,
+    });
+}
 
 
 const useMyVisites = (id: string) => {
@@ -134,11 +142,80 @@ const useUpdateVisitReport = () => {
     });
 };
 
+
+
+
+interface ConfirmVisitInput {
+    id: string;
+}
+
+export function useConfirmVisit() {
+    const queryClient = useQueryClient();
+
+
+    return useMutation({
+        mutationFn: async ({ id }: ConfirmVisitInput) => {
+            const { data, error } = await supabase
+                .from("visits")
+                .update({
+                    status: "confirmed",
+                })
+                .eq("id", id)
+                .select()
+                .single();
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        },
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["visites"],
+            });
+        },
+    });
+}
+
+
+const useUpdateVisitStatus = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (payload: UpdateVisitStatusPayload) =>
+            updateVisitStatus(payload),
+
+        onSuccess: (_, variables) => {
+            toast.success(
+                variables.status === "confirmed"
+                    ? "La visite a été confirmée"
+                    : "La visite a été reportée"
+            );
+
+            queryClient.invalidateQueries({
+                queryKey: ["visites"],
+            });
+        },
+
+        onError: (error) => {
+            console.error(error);
+
+            toast.error(
+                "Une erreur est survenue pendant la mise à jour"
+            );
+        },
+    });
+}
+
 export {
     useNewVisite,
     useVisites,
     useTopoId,
     useAssignTopo,
     useUpdateVisitReport,
-    useMyVisites
+    useMyVisites,
+    useUpdateVisitStatus,
+    useConfirmedVisits
 }

@@ -193,6 +193,93 @@
   --radius-2xl: calc(var(--radius) + 8px);
 }
 
+.visit-calendar .rbc-calendar {
+  color: rgb(15 23 42);
+}
+
+.visit-calendar .rbc-toolbar button {
+  border-color: rgb(203 213 225);
+  border-radius: 0.5rem;
+}
+
+.visit-calendar .rbc-toolbar button:hover,
+.visit-calendar .rbc-toolbar button:focus {
+  background: rgb(241 245 249);
+}
+
+.visit-calendar .rbc-toolbar button.rbc-active {
+  background: rgb(15 23 42);
+  color: white;
+}
+
+.visit-calendar .rbc-month-view,
+.visit-calendar .rbc-time-view,
+.visit-calendar .rbc-agenda-view table {
+  border-color: rgb(226 232 240);
+}
+
+.visit-calendar .rbc-header,
+.visit-calendar .rbc-day-bg,
+.visit-calendar .rbc-time-content,
+.visit-calendar .rbc-timeslot-group {
+  border-color: rgb(226 232 240);
+}
+
+.visit-calendar .rbc-event {
+  border: 0;
+  background: rgb(37 99 235);
+  border-radius: 0.375rem;
+}
+
+.visit-calendar .rbc-today {
+  background: rgb(239 246 255);
+}
+
+@media (prefers-color-scheme: dark) {
+  .visit-calendar .rbc-calendar {
+    color: rgb(226 232 240);
+  }
+
+  .visit-calendar .rbc-toolbar button {
+    color: rgb(226 232 240);
+    border-color: rgb(51 65 85);
+  }
+
+  .visit-calendar .rbc-toolbar button:hover,
+  .visit-calendar .rbc-toolbar button:focus {
+    background: rgb(30 41 59);
+  }
+
+  .visit-calendar .rbc-toolbar button.rbc-active {
+    background: white;
+    color: rgb(15 23 42);
+  }
+
+  .visit-calendar .rbc-month-view,
+  .visit-calendar .rbc-time-view,
+  .visit-calendar .rbc-agenda-view table,
+  .visit-calendar .rbc-header,
+  .visit-calendar .rbc-day-bg,
+  .visit-calendar .rbc-time-content,
+  .visit-calendar .rbc-timeslot-group {
+    border-color: rgb(51 65 85);
+  }
+
+  .visit-calendar .rbc-off-range-bg {
+    background: rgb(2 6 23);
+  }
+
+  .visit-calendar .rbc-today {
+    background: rgb(30 41 59);
+  }
+
+  .visit-calendar .rbc-agenda-date-cell,
+  .visit-calendar .rbc-agenda-time-cell,
+  .visit-calendar .rbc-agenda-event-cell {
+    border-color: rgb(51 65 85);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

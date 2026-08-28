@@ -12,6 +12,7 @@ export type VisitType =
 export type VisitStatus =
     | "planned"
     | "completed"
+    | "confirmed"
     | "cancelled"
     | "postponed";
 

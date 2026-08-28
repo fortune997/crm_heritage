@@ -34,6 +34,7 @@ import TabButton from "@/components/visites/TabButton";
 import StatVisitCard from "@/components/visites/StatVisitCard";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { VisitStatusDialog } from "@/components/visites/modale/visit-status-dialog";
 
 
 
@@ -47,6 +48,13 @@ export default function CommercialVisitsPage() {
     const [statusFilter, setStatusFilter] = useState<VisitStatus | "all">("all");
     const [typeFilter, setTypeFilter] = useState<VisitType | "all">("all");
     const [resultFilter, setResultFilter] = useState<VisitResult | "all">("all");
+    type VisitAction = "confirm" | "postpone";
+
+    const [selectedStatusVisit, setSelectedStatusVisit] =
+        useState<Visit | null>(null);
+
+    const [visitAction, setVisitAction] =
+        useState<VisitAction | null>(null);
     const router = useRouter()
 
     const { profile } = useAuth()
@@ -61,6 +69,14 @@ export default function CommercialVisitsPage() {
             String(now.getDate()).padStart(2, "0"),
         ].join("-");
     };
+
+    function openVisitStatusDialog(
+        visit: Visit,
+        action: VisitAction
+    ) {
+        setSelectedStatusVisit(visit);
+        setVisitAction(action);
+    }
 
     const today = getTodayDate();
     console.log('TODAY', today)
@@ -303,9 +319,17 @@ export default function CommercialVisitsPage() {
                                     <TodayVisitCard
                                         key={visit.id}
                                         visit={visit}
-                                        onReport={() =>
-                                            setSelectedVisit(
-                                                visit
+                                        onReport={() => setSelectedVisit(visit)}
+                                        onConfirmVisit={() =>
+                                            openVisitStatusDialog(
+                                                visit,
+                                                "confirm"
+                                            )
+                                        }
+                                        onPostponeVisit={() =>
+                                            openVisitStatusDialog(
+                                                visit,
+                                                "postpone"
                                             )
                                         }
                                     />
@@ -467,6 +491,9 @@ export default function CommercialVisitsPage() {
                                             <th className="px-5 py-3 text-left font-medium text-slate-500">
                                                 Résultat
                                             </th>
+                                            <th className="px-5 py-3 text-left font-medium text-slate-500">
+                                                Conf
+                                            </th>
 
                                             <th className="px-5 py-3 text-right font-medium text-slate-500">
                                                 Action
@@ -504,7 +531,19 @@ export default function CommercialVisitsPage() {
                 )}
             </div>
 
-            {/* REPORT DRAWER */}
+            <VisitStatusDialog
+                visit={selectedStatusVisit}
+                action={visitAction}
+                open={Boolean(
+                    selectedStatusVisit && visitAction
+                )}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectedStatusVisit(null);
+                        setVisitAction(null);
+                    }
+                }}
+            />
 
             {selectedVisit && (
                 <ReportDrawer
