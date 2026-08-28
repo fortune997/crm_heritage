@@ -16,7 +16,7 @@ const LeftSideAuth = () => {
                 </p>
 
                 <h1 className="text-3xl font-bold leading-tight">
-                    Gérez vos prospects, vos biens et vos activités commerciales avec
+                    Gérez vos prospects et vos activités commerciales avec
                     efficacité.
                 </h1>
 

@@ -129,7 +129,7 @@ export const updateVisitReport = async (
     const { data, error } = await supabase
         .from("visits")
         .update({
-            site: report.site,
+            new_site: report.site,
             interested_area: report.interested_area,
             interest_level: report.interest_level,
             desired_price: report.desired_price,
