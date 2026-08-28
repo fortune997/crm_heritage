@@ -23,7 +23,9 @@ import {
 } from "@/core/types/visites/type";
 import { useVisites } from "@/core/hooks/visites/useVisite";
 import { exportVisitsToPdf } from "@/components/visites/ExportVisitsPDF";
-import { VisitsCalendar } from "@/components/visites/VisitCalendar";
+
+import { CalendarSidebar } from "@/components/visites/calendar-sidebar";
+import { VisitsCalendar } from "@/components/visites/visits-calendar";
 
 
 type DisplayMode = "table" | "calendar";
@@ -122,6 +124,11 @@ export default function VisitsPage() {
 
     const [calendarView, setCalendarView] =
         useState<View>("month");
+    const [calendarDate, setCalendarDate] =
+        useState<Date>(new Date());
+
+    const [selectedVisit, setSelectedVisit] =
+        useState<Visit | null>(null);
 
     const [search, setSearch] =
         useState("");
@@ -490,10 +497,11 @@ export default function VisitsPage() {
                 {displayMode === "calendar" ? (
                     <VisitsCalendar
                         visits={filteredVisits}
-                        view={calendarView}
-                        onViewChange={
-                            setCalendarView
-                        }
+                        date={calendarDate}
+                        setDate={setCalendarDate}
+                        onSelectVisit={(visit) => {
+                            setSelectedVisit(visit);
+                        }}
                     />
                 ) : (
                     <section className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
