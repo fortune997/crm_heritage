@@ -91,42 +91,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const loadUserAccess = useCallback(async (userId: string) => {
         const { data, error } = await supabase
-            .from("user_roles")
+            .from("company_members")
             .select(`
-        role_id,
-        roles (
             id,
-            name,
-            role_permissions (
-                permissions (
-                    id,
-                    name,
-                    module
+            profile_id,
+            company_id,
+            role_id,
+            department_id,
+            access_scope,
+            status,
+            roles:role_id (
+                id,
+                name,
+                role_permissions (
+                    permissions (
+                        id,
+                        name,
+                        module
+                    )
                 )
             )
-        )
-    `)
-            .eq("user_id", userId)
+        `)
+            .eq("profile_id", userId)
+            .eq("status", "active")
             .maybeSingle();
 
         if (error) {
-            console.error('Erreur récupération accès utilisateur:', error);
+            console.error(
+                "Erreur récupération accès utilisateur :",
+                error
+            );
 
             setRole(null);
             setPermissions([]);
             setAccessScope(null);
             setCompanyId(null);
 
-            return;
+            return null;
         }
 
         if (!data) {
+            console.warn(
+                "Aucun accès actif trouvé pour l’utilisateur :",
+                userId
+            );
+
             setRole(null);
             setPermissions([]);
             setAccessScope(null);
             setCompanyId(null);
 
-            return;
+            return null;
         }
 
         const member = data as unknown as CompanyMemberRow;
@@ -150,12 +165,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
                     return [permission.name];
                 })
-                .filter(Boolean) ?? [];
+                .filter(
+                    (permission): permission is TPermissions =>
+                        Boolean(permission)
+                ) ?? [];
 
         setRole(roleName);
-        setPermissions(permissionNames as TPermissions[]);
-        setAccessScope(member.access_scope);
-        setCompanyId(member.company_id);
+        setPermissions(permissionNames);
+        setAccessScope(member.access_scope ?? null);
+        setCompanyId(member.company_id ?? null);
+
+        return member;
     }, []);
 
     const loadSession = useCallback(
@@ -187,31 +207,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     useEffect(() => {
+        let mounted = true;
+
         const initAuth = async () => {
-            const {
-                data: { session },
-                error,
-            } = await supabase.auth.getSession();
+            try {
+                const {
+                    data: { session },
+                    error,
+                } = await supabase.auth.getSession();
 
-            if (error) {
-                console.error('Erreur récupération session:', error);
-                resetAuthState();
-                setLoading(false);
-                return;
+                if (error) {
+                    throw error;
+                }
+
+                if (mounted) {
+                    await loadSession(session);
+                }
+            } catch (error) {
+                console.error(
+                    "Erreur initialisation authentification :",
+                    error
+                );
+
+                if (mounted) {
+                    resetAuthState();
+                    setLoading(false);
+                }
             }
-
-            await loadSession(session);
         };
 
-        initAuth();
+        void initAuth();
 
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
-            void loadSession(session);
+            // Sortir du traitement interne de Supabase avant
+            // de lancer les requêtes profile et permissions.
+            setTimeout(() => {
+                if (mounted) {
+                    void loadSession(session);
+                }
+            }, 0);
         });
 
         return () => {
+            mounted = false;
             subscription.unsubscribe();
         };
     }, [loadSession, resetAuthState]);
@@ -274,7 +314,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
 
 
-            await loadSession(data.session);
+
 
             queryClient.invalidateQueries({ queryKey: ['profile'] });
 
