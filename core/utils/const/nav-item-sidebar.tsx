@@ -4,6 +4,7 @@ import { TPermissions } from "@/core/types/permissions";
 
 
 
+
 import type { LucideIcon } from "lucide-react";
 
 export type SidebarSubItem = {
@@ -32,8 +33,6 @@ export type SidebarConfig = {
 
 export function useSidebarData() {
   const { canAny, isSuperAdmin } = usePermissions();
-
-
 
   const navMain = sidebarConfig.navMain
     .map((item) => {

@@ -86,11 +86,11 @@ export function UserProfileDropdown({
                     </Avatar>
 
                     <div className="hidden text-left md:block">
-                        <p className="max-w-[140px] truncate text-sm font-medium">
+                        <p className="max-w-35 truncate text-sm font-medium">
                             {profile?.full_name ?? "Utilisateur"}
                         </p>
 
-                        <p className="max-w-[140px] truncate text-xs text-muted-foreground">
+                        <p className="max-w-35 truncate text-xs text-muted-foreground">
                             {profile?.first_name ?? "Mon compte"}
                         </p>
                     </div>
@@ -141,27 +141,6 @@ export function UserProfileDropdown({
                     <User className="mr-2 h-4 w-4" />
                     Mon profil
                 </DropdownMenuItem>
-
-                <DropdownMenuItem
-                    onClick={() =>
-                        router.push("/users/settings")
-                    }
-                >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Paramètres
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                    onClick={() =>
-                        router.push(
-                            "/admin/roles"
-                        )
-                    }
-                >
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    Rôles et accès
-                </DropdownMenuItem>
-
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem

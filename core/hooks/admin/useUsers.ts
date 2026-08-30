@@ -1,4 +1,4 @@
-import { fetchUsersScopeById, getTopographeUsers, getUsers, getUsersScope } from "@/core/services/admin/users-service";
+import { fetchUsersScopeById, getCommercialUsers, getTopographeUsers, getUsers, getUsersScope } from "@/core/services/admin/users-service";
 import { HeritageUser } from "@/core/types/profiles";
 import { useQuery } from "@tanstack/react-query";
 
@@ -21,6 +21,13 @@ export function useUsersTopographique() {
     return useQuery<HeritageUser[]>({
         queryKey: ["topographes"],
         queryFn: getTopographeUsers,
+    });
+}
+
+export function useUsersCommercial() {
+    return useQuery<HeritageUser[]>({
+        queryKey: ["commercial"],
+        queryFn: getCommercialUsers,
     });
 }
 

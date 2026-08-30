@@ -171,7 +171,7 @@ export default function GeneralSettingsPage() {
     }
 
 
-    console.log('rUSER', user)
+
     const initials = currentUser.fullName
         .split(" ")
         .map((name) => name[0])

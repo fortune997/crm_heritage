@@ -52,7 +52,7 @@ const useMyVisites = (id: string) => {
 
 const useTopoId = (id: string, topo: string) => {
     return useQuery({
-        queryKey: ['users_sopes', id],
+        queryKey: ['visites', id],
         queryFn: () => assignedTopographe(id, topo),
         enabled: !!id,
     });
@@ -127,9 +127,7 @@ const useUpdateVisitReport = () => {
                 queryKey: ["visites"],
             });
 
-            queryClient.invalidateQueries({
-                queryKey: ["assignation"],
-            });
+           
         },
 
         onError: (error: Error, _, context) => {

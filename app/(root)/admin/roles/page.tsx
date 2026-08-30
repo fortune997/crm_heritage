@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-
 import {
     Table,
     TableBody,
@@ -19,9 +16,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-
 import { Button } from "@/components/ui/button";
-
 import {
     Dialog,
     DialogContent,
@@ -29,9 +24,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { Input } from "@/components/ui/input";
-
 import {
     Pencil,
     Trash2,
@@ -46,25 +39,10 @@ import { Field } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 
 
-
-type Role = {
-    id: string;
-    name: string;
-    label: string;
-    created_at: string;
-};
-
-
-
 export default function RolesPage() {
     const { data: roles, isLoading } = useRoles()
     const { mutate: newRole, isPending } = useNewRole()
-
-
     const [open, setOpen] = useState(false);
-
-
-
 
     const {
         handleSubmit,
@@ -79,16 +57,9 @@ export default function RolesPage() {
         },
     });
 
-
-
-
-
-
-
     useEffect(() => {
         if (!open) {
             reset();
-
         }
     }, [open]);
 
@@ -99,10 +70,6 @@ export default function RolesPage() {
         reset();
         setOpen(false)
     };
-
-
-
-
 
     return (
 
@@ -120,17 +87,12 @@ export default function RolesPage() {
 
                 </div>
 
-
-
-
                 <Dialog
                     open={open}
                     onOpenChange={setOpen}
                 >
 
                     <DialogTrigger >
-
-
                         <Button
 
                         >

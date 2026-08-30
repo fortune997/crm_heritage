@@ -54,6 +54,20 @@ export async function getTopographeUsers(): Promise<HeritageUser[]> {
     return data;
 }
 
+export async function getCommercialUsers(): Promise<HeritageUser[]> {
+    const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq('department', 'marketing_commercial')
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+
 export async function getUsersScope(): Promise<UserScopes[]> {
     const { data, error } = await supabase
         .from("user_roles")

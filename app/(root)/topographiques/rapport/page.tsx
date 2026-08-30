@@ -2,16 +2,14 @@
 
 
 import ReadValue from "@/components/rapport/ReadValue";
-import { useUsersTopographique } from "@/core/hooks/admin/useUsers";
+import { useUsersCommercial, useUsersTopographique } from "@/core/hooks/admin/useUsers";
 import { useAssignTopo, useConfirmedVisits, useTopoId, useUpdateVisitReport, useVisites } from "@/core/hooks/visites/useVisite";
 import { formatDate } from "@/core/lib/utils";
 import { HeritageUser } from "@/core/types/profiles";
 import { Visit } from "@/core/types/visites/type";
-import {
-    CalendarDays,
-    Check,
-    CheckCircle2,
+import {CalendarDays,Check,
     ChevronDown,
+    CheckCircle2,
     ChevronRight,
     ClipboardList,
     Edit3,
@@ -34,6 +32,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
+import { toast } from "sonner";
 
 
 export type InterestLevel =
@@ -48,16 +47,6 @@ type ReportStatus = "Complété" | "À compléter";
 
 
 
-const surveyors = [
-    "Dylane Mempouza",
-    "Jean Topographe",
-    "Pierre Ndzié",
-    "Paul Essomba",
-];
-
-/* =========================================================
-   HELPERS
-========================================================= */
 
 
 function formatCurrency(value: number | "") {
@@ -67,7 +56,15 @@ function formatCurrency(value: number | "") {
         Number(value)
     )} FCFA`;
 }
+    type PeriodFilter = "all" | "today" | "week" | "month";
+type CompletionFilter = "all" | "completed" | "incomplete";
 
+const PERIOD_LABELS: Record<PeriodFilter, string> = {
+    all: "Toutes les périodes",
+    today: "Rapport journalier",
+    week: "Rapport hebdomadaire",
+    month: "Rapport mensuel",
+};
 function getInterestClass(level: string) {
     switch (level) {
         case "Très intéressé":
@@ -119,14 +116,21 @@ export default function ConfirmedVisitsView() {
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [selectedSurveyor, setSelectedSurveyor] = useState("");
 
+const [commercialFilter, setCommercialFilter] = useState("all");
+const [siteFilter, setSiteFilter] = useState("all");
+
+    useState<CompletionFilter>("all");
+
+const [isExportingPdf, setIsExportingPdf] = useState(false);
     /* FILTERS */
     const [search, setSearch] = useState("");
-    const [period, setPeriod] = useState("all");
+    const [period, setPeriod] = useState<PeriodFilter>("all");
     const [surveyorFilter, setSurveyorFilter] = useState("all");
     const [interestFilter, setInterestFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
-    const { data: visitData = [], isLoading, isError, error } = useConfirmedVisits();
+    const { data: visitData = [] } = useConfirmedVisits();
     const { data: topoData = [] } = useUsersTopographique();
+    const { data: commercialData = [] } = useUsersCommercial();
     const { mutate: assign, isPending } = useAssignTopo();
     const {
         mutate: updateReport,
@@ -134,80 +138,172 @@ export default function ConfirmedVisitsView() {
     } = useUpdateVisitReport();
 
 
-    const filteredVisits = useMemo(() => {
-        return visitData?.filter((visit: Visit) => {
-            const searchValue = search.toLowerCase();
+   const filteredVisits = useMemo(() => {
+    const normalizedSearch = normalizeText(search);
+    const periodBounds = getPeriodBounds(period);
 
-            const matchesSearch =
-                visit?.prospects?.full_name.toLowerCase().includes(searchValue) ||
-                visit?.prospects?.phone.toLowerCase().includes(searchValue) ||
-                visit?.prospects?.id.toLowerCase().includes(searchValue) ||
-                visit?.sites?.nom_titre.toLowerCase().includes(searchValue);
+    return visitData.filter((visit: Visit) => {
+        const searchableContent = normalizeText([
+            visit.id,
+            visit.prospects?.full_name,
+            visit.prospects?.phone,
+            visit.profiles?.full_name,
+            visit.sites?.nom_titre,
+            visit.topographe,
+        ].join(" "));
 
-            /* const matchesSurveyor =
-                surveyorFilter === "all" ||
-                visit.surveyor === surveyorFilter;
+        const matchesSearch =
+            !normalizedSearch ||
+            searchableContent.includes(normalizedSearch);
 
-            const matchesInterest =
-                interestFilter === "all" ||
-                visit.interestLevel === interestFilter;
+        const matchesCommercial =
+            commercialFilter === "all" ||
+            visit.commercial_id === commercialFilter;
 
-            const matchesStatus =
-                statusFilter === "all" ||
-                visit.reportStatus === statusFilter; */
+        const matchesSite =
+            siteFilter === "all" ||
+            visit.site_id === siteFilter;
 
-            const today = new Date();
+        const matchesSurveyor =
+            surveyorFilter === "all" ||
+            (surveyorFilter === "unassigned"
+                ? !visit.topographe?.trim()
+                : visit.topographe === surveyorFilter);
 
-            const visitDate = new Date(visit.visit_date);
+        const matchesInterest =
+            interestFilter === "all" ||
+            visit.interest_level === interestFilter;
 
-            let matchesPeriod = true;
+        const matchesStatus =
+            statusFilter === "all" ||
+            (statusFilter === "completed"
+                ? visit.status === "completed"
+                : visit.status !== "completed");
 
-            if (period === "today") {
-                matchesPeriod = visitDate.toDateString() === today.toDateString();
-            }
+        const visitDate = parseVisitDate(visit.visit_date);
 
-            if (period === "week") {
-                const startOfWeek = new Date(today);
+        const matchesPeriod =
+            !periodBounds ||
+            (visitDate !== null &&
+                visitDate >= periodBounds.start &&
+                visitDate <= periodBounds.end);
 
-                startOfWeek.setDate(
-                    today.getDate() - today.getDay()
-                );
+        return (
+            matchesSearch &&
+            matchesCommercial &&
+            matchesSite &&
+            matchesSurveyor &&
+            matchesInterest &&
+            matchesStatus &&
+            matchesPeriod
+        );
+    });
+}, [
+    visitData,
+    search,
+    period,
+    commercialFilter,
+    siteFilter,
+    surveyorFilter,
+    interestFilter,
+    statusFilter,
+]);
 
-                startOfWeek.setHours(0, 0, 0, 0);
 
-                const endOfWeek = new Date(startOfWeek);
+function normalizeText(value: unknown) {
+    return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
 
-                endOfWeek.setDate(startOfWeek.getDate() + 6);
+function parseVisitDate(value: string) {
+    const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})/);
 
-                endOfWeek.setHours(23, 59, 59, 999);
+    if (match) {
+        const [, year, month, day] = match;
 
-                matchesPeriod =
-                    visitDate >= startOfWeek &&
-                    visitDate <= endOfWeek;
-            }
+        return new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day)
+        );
+    }
 
-            if (period === "month") {
-                matchesPeriod =
-                    visitDate.getMonth() === today.getMonth() &&
-                    visitDate.getFullYear() === today.getFullYear();
-            }
+    const date = new Date(value);
 
-            return (
-                matchesSearch &&
-                /*  matchesSurveyor &&
-                 matchesInterest &&
-                 matchesStatus && */
-                matchesPeriod
-            );
-        });
-    }, [
-        visitData,
-        search,
-        period,
-        surveyorFilter,
-        interestFilter,
-        statusFilter,
-    ]);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getPeriodBounds(period: PeriodFilter) {
+    if (period === "all") return null;
+
+    const now = new Date();
+    const start = new Date(now);
+    const end = new Date(now);
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+
+    if (period === "week") {
+        // Semaine française : lundi à dimanche
+        const daysSinceMonday = (start.getDay() + 6) % 7;
+
+        start.setDate(start.getDate() - daysSinceMonday);
+        end.setTime(start.getTime());
+        end.setDate(start.getDate() + 6);
+        end.setHours(23, 59, 59, 999);
+    }
+
+    if (period === "month") {
+        start.setDate(1);
+
+        end.setMonth(start.getMonth() + 1);
+        end.setDate(0);
+        end.setHours(23, 59, 59, 999);
+    }
+
+    return { start, end };
+}
+
+const commercialOptions = useMemo(() => {
+    const commercials = new Map<string, string>();
+
+    visitData.forEach((visit: Visit) => {
+        if (!visit.commercial_id) return;
+
+        commercials.set(
+            visit.commercial_id,
+            visit.profiles?.full_name || "Commercial sans nom"
+        );
+    });
+
+    return Array.from(commercials, ([id, name]) => ({
+        id,
+        name,
+    })).sort((a, b) => a.name.localeCompare(b.name, "fr"));
+}, [visitData]);
+
+const siteOptions = useMemo(() => {
+    const sites = new Map<string, string>();
+
+    visitData.forEach((visit: Visit) => {
+        if (!visit.site_id) return;
+
+        sites.set(
+            visit.site_id,
+            visit.sites?.nom_titre || "Site sans nom"
+        );
+    });
+
+    return Array.from(sites, ([id, name]) => ({
+        id,
+        name,
+    })).sort((a, b) => a.name.localeCompare(b.name, "fr"));
+}, [visitData]);
+
+
 
     const openedVisit = visitData.find(
         (visit: Visit) => visit.id === openedVisitId
@@ -259,6 +355,79 @@ export default function ConfirmedVisitsView() {
 
         setIsEditing(false);
     };
+
+    const handleExportPdf = async () => {
+    if (filteredVisits.length === 0) {
+        toast.error("Aucune visite à exporter avec ces filtres.");
+        return;
+    }
+
+    setIsExportingPdf(true);
+
+    try {
+        const { generateVisitsReportPdf } = await import(
+            "@/core/lib/pdf/generateVisitsReportPdf"
+        );
+
+        const selectedCommercial = commercialOptions.find(
+            (commercial) => commercial.id === commercialFilter
+        );
+
+        const selectedSite = siteOptions.find(
+            (site) => site.id === siteFilter
+        );
+
+        const activeFilters = [
+            `Période : ${PERIOD_LABELS[period]}`,
+            search.trim() ? `Recherche : ${search.trim()}` : null,
+            selectedCommercial
+                ? `Commercial : ${selectedCommercial.name}`
+                : null,
+            selectedSite
+                ? `Site : ${selectedSite.name}`
+                : null,
+            surveyorFilter !== "all"
+                ? `Topographe : ${
+                      surveyorFilter === "unassigned"
+                          ? "Non attribué"
+                          : surveyorFilter
+                  }`
+                : null,
+            interestFilter !== "all"
+                ? `Intérêt : ${interestFilter}`
+                : null,
+            statusFilter !== "all"
+                ? `Rapport : ${
+                      statusFilter === "completed"
+                          ? "Complété"
+                          : "À compléter"
+                  }`
+                : null,
+        ].filter((filter): filter is string => Boolean(filter));
+
+        generateVisitsReportPdf(filteredVisits, {
+            companyName: "HERITAGE CRM",
+            title: "Rapport des visites",
+            periodLabel: PERIOD_LABELS[period],
+            filters: activeFilters,
+
+            // Optionnel :
+            // logoDataUrl: "data:image/png;base64,...",
+        });
+
+        toast.success("Le rapport PDF a été généré.");
+    } catch (error) {
+        console.error("Erreur export PDF :", error);
+
+        toast.error(
+            error instanceof Error
+                ? error.message
+                : "Impossible de générer le PDF."
+        );
+    } finally {
+        setIsExportingPdf(false);
+    }
+};
 
 
     const handleSaveReport = () => {
@@ -752,31 +921,26 @@ export default function ConfirmedVisitsView() {
                         </p>
                     </div>
 
-                    <button
+                   <button
+    type="button"
+    onClick={handleExportPdf}
+    disabled={isExportingPdf || filteredVisits.length === 0}
+    className="
+        inline-flex items-center justify-center gap-2
+        rounded-xl border border-slate-200 bg-white
+        px-4 py-2.5 text-sm font-medium text-slate-700
+        shadow-sm transition hover:bg-slate-50
+        disabled:cursor-not-allowed disabled:opacity-50
+        dark:border-slate-800 dark:bg-slate-900
+        dark:text-slate-200 dark:hover:bg-slate-800
+    "
+>
+    <Printer className="h-4 w-4" />
 
-                        className="
-              inline-flex items-center justify-center gap-2
-              rounded-xl border
-              border-slate-200
-              bg-white
-              px-4 py-2.5
-              text-sm font-medium
-              text-slate-700
-              shadow-sm
-              transition
-
-              hover:bg-slate-50
-
-              dark:border-slate-800
-              dark:bg-slate-900
-              dark:text-slate-200
-              dark:hover:bg-slate-800
-            "
-                    >
-                        <Printer className="h-4 w-4" />
-
-                        Imprimer la liste
-                    </button>
+    {isExportingPdf
+        ? "Génération..."
+        : "Exporter le PDF"}
+</button>
                 </div>
 
                 <div
@@ -808,209 +972,227 @@ export default function ConfirmedVisitsView() {
             FILTERS
         ============================================== */}
 
-                <div
-                    className="
-            mb-6 rounded-2xl border
-            border-slate-200
-            bg-white
-            p-4
-            shadow-sm
+              <div className=" mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
+    {/* HEADER */}
 
-            dark:border-slate-800
-            dark:bg-slate-900
-          "
-                >
-                    <div className="mb-4 flex items-center gap-2">
-                        <Filter
-                            className="
-                h-4 w-4
-                text-slate-500
-                dark:text-slate-400
-              "
-                        />
+    <div className="mb-4 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400" />
 
-                        <span className="text-sm font-semibold">
-                            Filtres
-                        </span>
-                    </div>
+            <span className="text-sm font-semibold">
+                Filtres
+            </span>
+        </div>
 
-                    <div
-                        className="
-              grid gap-3
-              md:grid-cols-2
-              xl:grid-cols-6
+        <button
+            type="button"
+            onClick={resetFilters}
+            className="
+                inline-flex shrink-0 items-center gap-2
+                text-sm font-medium text-slate-500
+                transition hover:text-slate-900
+                dark:text-slate-400 dark:hover:text-white
             "
+        >
+            <RotateCcw className="h-4 w-4" />
+
+            <span className="hidden sm:inline">
+                Réinitialiser
+            </span>
+        </button>
+    </div>
+
+    <div className="space-y-3">
+        {/* PREMIÈRE LIGNE */}
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {/* RECHERCHE */}
+
+            <div className="relative sm:col-span-2">
+                <Search
+                    className="
+                        absolute left-3 top-1/2 h-4 w-4
+                        -translate-y-1/2 text-slate-400
+                    "
+                />
+
+                <input
+                    value={search}
+                    onChange={(event) =>
+                        setSearch(event.target.value)
+                    }
+                    placeholder="Client, téléphone, référence..."
+                    className="
+                        h-11 w-full rounded-xl border
+                        border-slate-200 bg-white
+                        pl-10 pr-4 text-sm outline-none
+                        transition focus:border-slate-400
+                        dark:border-slate-700
+                        dark:bg-slate-950 dark:text-white
+                        dark:placeholder:text-slate-500
+                        dark:focus:border-slate-500
+                    "
+                />
+            </div>
+
+            {/* PÉRIODE */}
+
+            <select
+                value={period}
+                onChange={(event) =>
+                    setPeriod(
+                        event.target.value as PeriodFilter
+                    )
+                }
+                className="select-input h-11 w-full min-w-0"
+            >
+                <option value="all">
+                    Toutes les périodes
+                </option>
+
+                <option value="today">
+                    Aujourd&apos;hui
+                </option>
+
+                <option value="week">
+                    Cette semaine
+                </option>
+
+                <option value="month">
+                    Ce mois
+                </option>
+            </select>
+
+            {/* COMMERCIAL */}
+
+            <select
+                value={commercialFilter}
+                onChange={(event) =>
+                    setCommercialFilter(event.target.value)
+                }
+                className="select-input h-11 w-full min-w-0"
+            >
+                <option value="all">
+                    Tous les commerciaux
+                </option>
+
+                {commercialData.map((commercial) => (
+                    <option
+                        key={commercial.id}
+                        value={commercial.full_name}
                     >
-                        {/* SEARCH */}
+                        {commercial.full_name}
+                    </option>
+                ))}
+            </select>
+        </div>
 
-                        <div
-                            className="
-                relative
-                xl:col-span-2
-              "
-                        >
-                            <Search
-                                className="
-                  absolute left-3 top-1/2
-                  h-4 w-4
-                  -translate-y-1/2
-                  text-slate-400
-                "
-                            />
+        {/* DEUXIÈME LIGNE */}
 
-                            <input
-                                value={search}
-                                onChange={(e) =>
-                                    setSearch(e.target.value)
-                                }
-                                placeholder="Client, téléphone, référence..."
-                                className="
-                  h-11 w-full rounded-xl border
-                  border-slate-200
-                  bg-white
-                  pl-10 pr-4
-                  text-sm
-                  outline-none
-                  transition
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {/* SITE */}
 
-                  focus:border-slate-400
+            <select
+                value={siteFilter}
+                onChange={(event) =>
+                    setSiteFilter(event.target.value)
+                }
+                className="select-input h-11 w-full min-w-0"
+            >
+                <option value="all">
+                    Tous les sites
+                </option>
 
-                  dark:border-slate-700
-                  dark:bg-slate-950
-                  dark:text-white
-                  dark:placeholder:text-slate-500
-                  dark:focus:border-slate-500
-                "
-                            />
-                        </div>
+                {siteOptions.map((site) => (
+                    <option key={site.id} value={site.id}>
+                        {site.name}
+                    </option>
+                ))}
+            </select>
 
-                        {/* PERIOD */}
+            {/* TOPOGRAPHE */}
 
-                        <select
-                            value={period}
-                            onChange={(e) =>
-                                setPeriod(e.target.value)
-                            }
-                            className="select-input"
-                        >
-                            <option value="all">
-                                Toutes les périodes
-                            </option>
+            <select
+                value={surveyorFilter}
+                onChange={(event) =>
+                    setSurveyorFilter(event.target.value)
+                }
+                className="select-input h-11 border w-full min-w-0"
+            >
+                <option value="all">
+                    Tous les topographes
+                </option>
 
-                            <option value="today">
-                                Aujourd'hui
-                            </option>
+                <option value="unassigned">
+                    Non attribuées
+                </option>
 
-                            <option value="week">
-                                Cette semaine
-                            </option>
+                {topoData.map((surveyor) => (
+                                            <option
+                                                key={surveyor.id}
+                                                value={surveyor.full_name}
+                                            >
+                                                {surveyor.full_name}
+                                            </option>
+                                        ))}
+            </select>
 
-                            <option value="month">
-                                Ce mois
-                            </option>
-                        </select>
+            {/* NIVEAU D’INTÉRÊT */}
 
-                        {/* SURVEYOR */}
+            <select
+                value={interestFilter}
+                onChange={(event) =>
+                    setInterestFilter(event.target.value)
+                }
+                className="select-input h-11 w-full min-w-0"
+            >
+                <option value="all">
+                    Tous les intérêts
+                </option>
 
-                        <select
-                            value={surveyorFilter}
-                            onChange={(e) =>
-                                setSurveyorFilter(e.target.value)
-                            }
-                            className="select-input"
-                        >
-                            <option value="all">
-                                Tous les topographes
-                            </option>
+                <option value="Très intéressé">
+                    Très intéressé
+                </option>
 
-                            <option value="unassigned">
-                                Non attribuées
-                            </option>
+                <option value="Intéressé">
+                    Intéressé
+                </option>
 
-                            {surveyors.map((surveyor) => (
-                                <option
-                                    key={surveyor}
-                                    value={surveyor}
-                                >
-                                    {surveyor}
-                                </option>
-                            ))}
-                        </select>
+                <option value="Peu intéressé">
+                    Peu intéressé
+                </option>
 
-                        {/* INTEREST */}
+                <option value="Pas intéressé">
+                    Pas intéressé
+                </option>
+            </select>
 
-                        <select
-                            value={interestFilter}
-                            onChange={(e) =>
-                                setInterestFilter(e.target.value)
-                            }
-                            className="select-input"
-                        >
-                            <option value="all">
-                                Tous les intérêts
-                            </option>
+            {/* STATUT DU RAPPORT */}
 
-                            <option value="Très intéressé">
-                                Très intéressé
-                            </option>
+            <select
+                value={statusFilter}
+                onChange={(event) =>
+                    setStatusFilter(
+                        event.target.value as CompletionFilter
+                    )
+                }
+                className="select-input h-11 w-full min-w-0"
+            >
+                <option value="all">
+                    Tous les rapports
+                </option>
 
-                            <option value="Intéressé">
-                                Intéressé
-                            </option>
+                <option value="completed">
+                    Complétés
+                </option>
 
-                            <option value="Peu intéressé">
-                                Peu intéressé
-                            </option>
-
-                            <option value="Pas intéressé">
-                                Pas intéressé
-                            </option>
-                        </select>
-
-                        {/* STATUS */}
-
-                        <select
-                            value={statusFilter}
-                            onChange={(e) =>
-                                setStatusFilter(e.target.value)
-                            }
-                            className="select-input"
-                        >
-                            <option value="all">
-                                Tous les rapports
-                            </option>
-
-                            <option value="Complété">
-                                Complétés
-                            </option>
-
-                            <option value="À compléter">
-                                À compléter
-                            </option>
-                        </select>
-                    </div>
-
-                    <div className="mt-4 flex justify-end">
-                        <button
-                            onClick={resetFilters}
-                            className="
-                inline-flex items-center gap-2
-                text-sm font-medium
-                text-slate-500
-                transition
-
-                hover:text-slate-900
-
-                dark:text-slate-400
-                dark:hover:text-white
-              "
-                        >
-                            <RotateCcw className="h-4 w-4" />
-
-                            Réinitialiser
-                        </button>
-                    </div>
-                </div>
+                <option value="incomplete">
+                    À compléter
+                </option>
+            </select>
+        </div>
+    </div>
+</div>
 
                 {selectedVisitIds.length > 0 && (
                     <div
@@ -1561,30 +1743,28 @@ export default function ConfirmedVisitsView() {
 
                                 <div className="flex flex-wrap items-center gap-2">
                                     {/* PRINT */}
-
                                     <button
-                                        //onClick={handlePrintReport}
-                                        className="
-                      inline-flex items-center gap-2
-                      rounded-xl border
-                      border-slate-200
-                      px-3 py-2.5
-                      text-sm font-medium
-                      transition
+    type="button"
+    onClick={handleExportPdf}
+    disabled={isExportingPdf || filteredVisits.length === 0}
+    className="
+        inline-flex items-center justify-center gap-2
+        rounded-xl border border-slate-200 bg-white
+        px-4 py-2.5 text-sm font-medium text-slate-700
+        shadow-sm transition hover:bg-slate-50
+        disabled:cursor-not-allowed disabled:opacity-50
+        dark:border-slate-800 dark:bg-slate-900
+        dark:text-slate-200 dark:hover:bg-slate-800
+    "
+>
+    <Printer className="h-4 w-4" />
 
-                      hover:bg-slate-50
+    {isExportingPdf
+        ? "Génération..."
+        : "Exporter le PDF"}
+</button>
 
-                      dark:border-slate-700
-                      dark:text-slate-200
-                      dark:hover:bg-slate-800
-                    "
-                                    >
-                                        <Printer className="h-4 w-4" />
-
-                                        <span className="hidden sm:inline">
-                                            Imprimer
-                                        </span>
-                                    </button>
+                                   
 
                                     {/* EDIT */}
 
@@ -2113,9 +2293,7 @@ export default function ConfirmedVisitsView() {
                 </div>
             </div>
 
-            {/* =============================================
-          ASSIGN SURVEYOR MODAL
-      ============================================== */}
+           
 
             {isAssignModalOpen && (
                 <div

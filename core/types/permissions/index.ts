@@ -2,7 +2,7 @@ import { SidebarItem } from "@/core/utils/const/nav-item-sidebar";
 import { LucideIcon } from "lucide-react";
 
 
-export type TPermission = {
+export type TPermissions = {
     id: string;
     label: string;
     module: string;
@@ -10,8 +10,8 @@ export type TPermission = {
     name: string;
 };
 
-export type TPermissions = TPermission[];
-export type PermissionName = string;
+
+
 
 export type SidebarConfig = {
     teams: {
