@@ -8,8 +8,8 @@ export const siteSchema = z.object({
     statut_site: z.string().trim().min(1),
    
 
-    description_site: z.string().trim().min(1),
-    description_detaille: z.string().trim().min(1),
+    description_site: z.string().optional(),
+    description_detaille: z.string().optional(),
 
     region: z.string().trim().min(1),
     ville: z.string().trim().min(1),
@@ -62,8 +62,8 @@ export const siteSchema = z.object({
 
     topographe_responsable: z.string().trim().min(1),
 
-    prochaine_action: z.string().trim().min(1),
-    derniere_visite: z.string().trim().min(1),
+    prochaine_action: z.string().optional(),
+    derniere_visite: z.string().optional(),
 
     imageFiles: z
         .array(z.instanceof(File))

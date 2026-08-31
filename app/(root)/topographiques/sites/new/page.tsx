@@ -460,7 +460,7 @@ export default function CreateSitePage() {
 
                                 <Field>
                                     <Label htmlFor="" className="required">
-                                        Localisation précise
+                                        Localisation
                                     </Label>
                                     <Controller
                                         name="localisation_precise"
@@ -1347,7 +1347,7 @@ export default function CreateSitePage() {
                                         name="document_foncier"
                                         render={({ field }) => (
                                             <UploadBox
-                                                title="Plan de lotissement"
+                                                title="Titre foncier"
                                                 description="Titre foncier, contrat, rapport, justificatifs."
                                                 type="file"
                                                 field={field}
@@ -1615,7 +1615,7 @@ export default function CreateSitePage() {
                             </CardContent>
                         </Card>
 
-                        {/* Validation checklist */}
+                        {/* Validation checklist 
                         <Card>
                             <CardHeader>
                                 <CardTitle>Checklist qualité</CardTitle>
@@ -1631,7 +1631,7 @@ export default function CreateSitePage() {
                                 <ChecklistItem label="Photo principale ajoutée" />
                                 <ChecklistItem label="Risque terrain évalué" />
                             </CardContent>
-                        </Card>
+                        </Card>*/}
 
                         {/* Actions */}
                         <Card>
@@ -1641,12 +1641,8 @@ export default function CreateSitePage() {
                                     Enregistrer le site
                                 </Button>
 
-                                <Button variant="outline" className="w-full">
-                                    Enregistrer en brouillon
-                                </Button>
-
                                 <Button variant="ghost" className="w-full">
-                                    <Link href="/dashboard/topography/sites">Annuler</Link>
+                                    <Link href="/topographiques/sites">Annuler</Link>
                                 </Button>
                             </CardContent>
                         </Card>
