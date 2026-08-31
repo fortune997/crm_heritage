@@ -14,22 +14,22 @@ export const siteSchema = z.object({
     region: z.string().trim().min(1),
     ville: z.string().trim().min(1),
     quartier: z.string().trim().min(1),
-    localisation_precise: z.string().trim().min(1),
+    localisation_precise: z.string().optional(),
     repere_connu: z.string().trim().min(1),
 
-    latitude: z.string().trim().min(1),
-    longitude: z.string().trim().min(1),
-    lien_google: z.string().trim().min(1),
+    latitude: z.string().optional(),
+    longitude: z.string().optional(),
+    lien_google: z.string().optional(),
 
     prix_metre_carre: z.string().min(1),
     superficie_total: z.string().min(1),
     superficie_disponible: z.string().min(1),
 
-    lots: z.string().min(0),
-    lots_disponible: z.string().min(0),
+    lots: z.string().optional(),
+    lots_disponible: z.string().optional(),
 
-    lots_vendus: z.string().min(0),
-    lots_reserve: z.string().min(0),
+    lots_vendus: z.string().optional(),
+    lots_reserve: z.string().optional(),
 
     modalite_paiement: z.string().trim().min(1),
 
@@ -38,11 +38,11 @@ export const siteSchema = z.object({
     statut_document_site: z.string().trim().min(1),
     procedure_acquisition_site: z.string().trim().min(1),
 
-    niveau_risque_juridique_site: z.string().trim().min(1),
+    niveau_risque_juridique_site: z.string().optional(),
 
     nom_partenaire_site: z.string().trim().min(1),
     type_fournisseur_site: z.string().trim().min(1),
-    telephone_fournisseur_site: z.string().trim().min(1),
+    telephone_fournisseur_site: z.string().optional(),
 
     email_fournisseur_site: z
         .string()
@@ -52,15 +52,15 @@ export const siteSchema = z.object({
 
     statut_fournisseur_site: z.string().trim().min(1),
     fiabilite_fournisseur_site: z.string().trim().min(1),
-    prix_fournisseur_site: z.string().trim().min(1),
-    note_comportement_fournisseur_site: z.string().trim().min(1),
-    frais_supplementaire: z.string().trim().min(1),
+    prix_fournisseur_site: z.string().trim().optional(),
+    note_comportement_fournisseur_site: z.string().optional(),
+    frais_supplementaire: z.string().optional(),
 
     electricite_site: z.string().trim().min(1),
     eau_true: z.string().trim().min(1),
     type_sol: z.string().trim().min(1),
 
-    topographe_responsable: z.string().trim().min(1),
+    topographe_responsable: z.string().optional(),
 
     prochaine_action: z.string().optional(),
     derniere_visite: z.string().optional(),
