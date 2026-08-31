@@ -104,19 +104,19 @@ export function PaymentsTable({
                             <TableCell>
                                 <div>
                                     <p className="font-medium">
-                                        {payment.sale.prospect.full_name}
+                                        {payment.sale.prospects.full_name}
                                     </p>
 
-                                    {payment.sale.prospect.phone && (
+                                    {payment.sale.prospects.phone && (
                                         <p className="text-xs text-muted-foreground">
-                                            {payment.sale.prospect.phone}
+                                            {payment.sale.prospects.phone}
                                         </p>
                                     )}
                                 </div>
                             </TableCell>
 
                             <TableCell>
-                                {payment.sale.site?.nom_titre ?? "—"}
+                                {payment.sale.sites?.nom_titre ?? "—"}
                             </TableCell>
 
                             <TableCell>

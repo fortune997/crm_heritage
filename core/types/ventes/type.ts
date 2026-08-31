@@ -7,7 +7,7 @@ export type SaleStatus =
 export type PaymentStatus =
     | "confirme"
     | "en_attente"
-    | "annule";
+    
 
 export type PaymentMethod =
     | "especes"
@@ -51,8 +51,8 @@ export interface Sale {
     created_at: string;
     updated_at: string;
 
-    prospect: ProspectSummary;
-    site: SiteSummary | null;
+    prospects: ProspectSummary;
+    sites: SiteSummary | null;
 }
 
 export interface Payment {

@@ -14,7 +14,7 @@ const labels: Record<
 > = {
     confirme: "Confirmé",
 
-    annule: "Annulé",
+    
 
     active: "Active",
     soldee: "Soldée",

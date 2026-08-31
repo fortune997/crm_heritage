@@ -1,9 +1,9 @@
 import React from 'react'
 
-const DepensePage = () => {
-    return (
-        <div>DepensePage</div>
-    )
+const Depence = () => {
+  return (
+    <div>Depence</div>
+  )
 }
 
-export default DepensePage
+export default Depence

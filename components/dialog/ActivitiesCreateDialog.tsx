@@ -1,5 +1,3 @@
-// features/activities/components/activity-create-dialog.tsx
-
 "use client";
 
 import * as React from "react";
