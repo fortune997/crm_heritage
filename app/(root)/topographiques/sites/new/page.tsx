@@ -108,7 +108,7 @@ export default function CreateSitePage() {
 
             type_site: "",
             statut_site: "",
-            slug: "",
+           
             description_site: "",
             description_detaille: "",
 
@@ -267,7 +267,7 @@ export default function CreateSitePage() {
 
                                 </div>
 
-                                <div className="grid gap-4 md:grid-cols-3">
+                                <div className="grid gap-4 md:grid-cols-2">
 
                                     <Field>
                                         <Label htmlFor="company_id" className="required">
@@ -331,26 +331,7 @@ export default function CreateSitePage() {
                                         )}
                                     </Field>
 
-                                    <Field >
-                                        <Label htmlFor="full_name" className="required">
-                                            Slug du site
-                                        </Label>
-                                        <Controller
-                                            name="slug"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Input
-                                                    id="slug"
-                                                    placeholder="domaine-heritage-pk27"
-                                                    {...field}
-                                                    aria-invalid={!!getError("slug")}
-                                                />
-                                            )}
-                                        />
-                                        {getError("slug") && (
-                                            <p className="text-sm text-red-500 mt-1">{getError("slug")}</p>
-                                        )}
-                                    </Field>
+                                   
                                 </div>
 
                                 <Field>

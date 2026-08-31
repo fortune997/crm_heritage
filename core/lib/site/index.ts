@@ -6,7 +6,7 @@ export const siteSchema = z.object({
 
     type_site: z.string().trim().min(1),
     statut_site: z.string().trim().min(1),
-    slug: z.string().trim().min(1),
+   
 
     description_site: z.string().trim().min(1),
     description_detaille: z.string().trim().min(1),
