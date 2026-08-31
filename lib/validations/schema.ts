@@ -48,7 +48,6 @@ export const prospectSchema = z
         sexe: z.string().min(1, "Sexe is required"),
         phone: z.string().min(1, "Phone number is required"),
         site_interesse: z.string().min(1, "Site intéresse"),
-        email: z.string().email("Invalid email address").min(1, "Email is required"),
         canal_prospection: z.string().min(1, "Source is required"),
         message: z.string().optional(),
     })

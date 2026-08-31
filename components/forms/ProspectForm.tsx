@@ -68,7 +68,7 @@ export function ProspectForm({
         defaultValues: {
             full_name: initialData?.full_name || "",
             phone: initialData?.phone || "",
-            email: initialData?.email || "",
+            
             canal_prospection: initialData?.canal_prospection || "",
             message: initialData?.message || "",
             sexe: initialData?.sexe || "homme",
@@ -217,27 +217,7 @@ export function ProspectForm({
                         </Field>
 
                         {/* Email */}
-                        <Field>
-                            <Label htmlFor="email" className="required">
-                                Email
-                            </Label>
-                            <Controller
-                                name="email"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="john@example.com"
-                                        {...field}
-                                        aria-invalid={!!getError("email")}
-                                    />
-                                )}
-                            />
-                            {getError("email") && (
-                                <p className="text-sm text-red-500 mt-1">{getError("email")}</p>
-                            )}
-                        </Field>
+                       
 
                         {/* Source */}
                         <Field>
