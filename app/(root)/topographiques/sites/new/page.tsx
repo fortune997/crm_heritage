@@ -102,6 +102,7 @@ export default function CreateSitePage() {
         reset,
         formState: { errors },
     } = useForm<TSiteValues>({
+
         resolver: zodResolver(siteSchema),
         defaultValues: {
             nom_titre: "",
@@ -206,7 +207,7 @@ export default function CreateSitePage() {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                {/* <div className="flex flex-wrap gap-2">
                     <Button variant="outline">
                         <Link href="/topographiques/sites">Annuler</Link>
                     </Button>
@@ -215,7 +216,7 @@ export default function CreateSitePage() {
                         <Save className="mr-2 h-4 w-4" />
                         Enregistrer le site
                     </Button>
-                </div>
+                </div> */}
             </div>
             <form onSubmit={handleSubmit(onSubmit,
                 (errors) => {

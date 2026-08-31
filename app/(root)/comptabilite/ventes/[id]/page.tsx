@@ -257,14 +257,14 @@ const SalePaymentsPage =()=> {
                                     icon={UserRound}
                                     label="Prospect"
                                     value={
-                                        sale.prospects.full_name
+                                        sale?.prospects?.full_name
                                     }
                                 />
 
                                 <InformationItem
                                     icon={CreditCard}
                                     label="Téléphone"
-                                    value={sale.prospects.phone}
+                                    value={sale?.prospects?.phone}
                                 />
 
                                 <InformationItem
