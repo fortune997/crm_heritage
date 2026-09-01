@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { ActivityTreatDialog } from "../dialog/ActivityTreatDialog";
 import { ProspectActivity } from "@/core/types/activities";
 import { formatDateTime } from "@/core/lib/utils";
+import { ActivityFollowUp } from "@/core/services/activites/activities-service";
 
 
 type ActivityFollowUpBoardProps = {
-    activities: ProspectActivity[];
+    activities: ActivityFollowUp[];
 };
 
 const isDueOrOverdue = (value?: string | null) => {
@@ -42,7 +43,7 @@ export function ActivityFollowUpBoard({
         .filter(
             (activity) =>
                 isDueOrOverdue(activity.prochain_relance) &&
-                normalizeStatus(activity.statut_activite) !== "terminee"
+                normalizeStatus(activity.statut_activite) !== "Terminée"
         )
         .slice(0, 5);
 
@@ -93,7 +94,7 @@ export function ActivityFollowUpBoard({
 
                                     <div className="min-w-0">
                                         <div className="truncate font-medium">
-                                            {activity.prospects?.full_name}
+                                            {activity.prospect_name}
                                         </div>
                                         <div className="truncate text-sm text-muted-foreground">
                                             {activity.titre}
@@ -107,10 +108,10 @@ export function ActivityFollowUpBoard({
                                 </div>
 
                                 <div className="mt-auto flex gap-2 pt-1">
-                                    {activity.prospects?.phone && (
+                                    {activity.prospect_phone && (
                                         <Button size="sm" variant="outline">
                                             <a
-                                                href={`https://wa.me/${activity.prospects.phone.replace(/\D/g, "")}`}
+                                                href={`https://wa.me/${activity.prospect_phone.replace(/\D/g, "")}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
@@ -120,6 +121,9 @@ export function ActivityFollowUpBoard({
                                         </Button>
                                     )}
                                     <ActivityTreatDialog activity={activity} />
+                                     <div className="truncate font-medium">
+                                            {activity.created_by_name}
+                                        </div>
                                 </div>
                             </div>
                         );

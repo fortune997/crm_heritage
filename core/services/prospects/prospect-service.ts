@@ -543,7 +543,7 @@ const updateProspect = async ({
   prospectData,
 }: {
   id: string;
-  prospectData: HeritageUser;
+  prospectData: ProspectFormValues;
 }) => {
   const { data, error } = await supabase
     .from("prospects")
@@ -552,6 +552,21 @@ const updateProspect = async ({
   if (error) throw new Error(error.message);
   return data;
 };
+
+export async function deleteProspect(
+    prospectId: string
+): Promise<void> {
+    const { error } = await supabase
+        .from("prospects")
+        .delete()
+        .eq("id", prospectId);
+
+    if (error) {
+        throw new Error(
+            `Erreur lors de la suppression du prospect : ${error.message}`
+        );
+    }
+}
 
 /* const updateCorporate = async ({
   id,

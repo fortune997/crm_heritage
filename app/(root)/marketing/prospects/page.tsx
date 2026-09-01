@@ -8,6 +8,8 @@ import { ProspectForm } from "@/components/forms/ProspectForm";
 import { useProspect } from "@/core/hooks/prospects/useProspect";
 import { ProspectTableSkeleton } from "@/components/cards/ProspectTableSkeleton";
 import { usePermission } from "@/core/hooks/admin/usePermission";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 
 export default function ProspectsPage() {
@@ -40,7 +42,15 @@ export default function ProspectsPage() {
                     </p>
                 </div>
 
-                <ProspectForm />
+               <ProspectForm
+               type ="create"
+                trigger={
+                    <Button className="rounded-2xl bg-green-800 text-white shadow">
+                        <Plus className="mr-2 size-4" />
+                        Ajouter un prospect
+                    </Button>
+                }
+            />
             </div>
 
             <Card>

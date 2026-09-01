@@ -39,6 +39,7 @@ export interface ProspectActivity {
 
     prochain_relance: string | null;
     completed_at: string | null;
+    created_by_name: string | null;
     sexe: string;
 
     created_at: string;

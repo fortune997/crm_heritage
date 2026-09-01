@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
     ArrowUpDown,
+    Edit,
     Eye,
     MoreHorizontal,
     Pencil,
@@ -28,6 +29,8 @@ import { TProspects } from "@/core/types/prospects";
 
 import { ActivityCreateDialog } from "@/components/dialog/ActivitiesCreateDialog";
 import { formatDate } from "@/core/types/time-formatting";
+import { ProspectForm } from "@/components/forms/ProspectForm";
+import ProspectActions from "@/components/dialog/ProspectActions";
 
 
 // ============================================================
@@ -36,10 +39,12 @@ import { formatDate } from "@/core/types/time-formatting";
 
 export type ProspectStatus =
     | "Nouveau"
-    | "contacte"
-    | "interesse"
-    | "visite_planifiee"
-    | "converti"
+    | "À contacter"
+    | "Contacté"
+    | "Visite programmée"
+    | "Visite effectuée"
+    | "Intéressé"
+    | "Client"
     | "Perdu";
 
 export type ProspectPriority =
@@ -67,46 +72,76 @@ function formatCurrency(value?: number) {
 // STATUS BADGE
 // ============================================================
 
+
+const statusConfig: Record<
+    ProspectStatus,
+    {
+        label: string;
+        className: string;
+    }
+> = {
+    Nouveau: {
+        label: "Nouveau",
+        className:
+            "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-400",
+    },
+
+   "À contacter": {
+    label: "À contacter",
+    className:
+        "border-red-500 bg-red-100 text-red-700 shadow-sm shadow-red-500/30 motion-safe:animate-pulse dark:border-red-500 dark:bg-red-950/50 dark:text-red-400",
+},
+
+    Contacté: {
+        label: "Contacté",
+        className:
+            "border-yellow-500/20 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
+    },
+
+    "Visite programmée": {
+        label: "Visite programmée",
+        className:
+            "border-orange-500/20 bg-orange-500/10 text-orange-700 dark:text-orange-400",
+    },
+
+    "Visite effectuée": {
+        label: "Visite effectuée",
+        className:
+            "border-indigo-500/20 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400",
+    },
+
+    Intéressé: {
+        label: "Intéressé",
+        className:
+            "border-purple-500/20 bg-purple-500/10 text-purple-700 dark:text-purple-400",
+    },
+
+    Client: {
+        label: "Client",
+        className:
+            "border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-400",
+    },
+
+    Perdu: {
+        label: "Perdu",
+        className:
+            "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-400",
+    },
+};
+
 export function StatusBadge({
     status,
 }: {
     status: ProspectStatus;
 }) {
-    const labels: Record<ProspectStatus, string> = {
-        Nouveau: "Nouveau",
-        contacte: "Contacté",
-        interesse: "Intéressé",
-        visite_planifiee: "Visite planifiée",
-        converti: "Converti",
-        Perdu: "Perdu",
-    };
-
-    const className: Record<ProspectStatus, string> = {
-        Nouveau:
-            "border-blue-500/20 bg-blue-500/10 text-blue-600",
-
-        contacte:
-            "border-yellow-500/20 bg-yellow-500/10 text-yellow-700",
-
-        interesse:
-            "border-purple-500/20 bg-purple-500/10 text-purple-600",
-
-        visite_planifiee:
-            "border-orange-500/20 bg-orange-500/10 text-orange-600",
-
-        converti:
-            "border-green-500/20 bg-green-500/10 text-green-600",
-
-        Perdu:
-            "border-red-500/20 bg-red-500/10 text-red-600",
-    };
+    const config = statusConfig[status];
 
     return (
         <Badge
             variant="outline"
-            className={className[status]}
+            className={config.className}
         >
-            {labels[status]}
+            {config.label}
         </Badge>
     );
 }
@@ -318,60 +353,23 @@ export const getProspectColumns = (
                 } satisfies ColumnDef<TProspects>,
             ]
             : []),
-        {
-            id: "actions",
+       {
+        id: "actions",
+        header: () => (
+            <div className="text-right">
+                Actions
+            </div>
+        ),
+        cell: ({ row }) => {
+            const prospect = row.original;
 
-            cell: ({ row }) => {
-                const prospect = row.original;
-
-                return (
-                    <div className="flex justify-end">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger >
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8"
-                                >
-                                    <MoreHorizontal className="size-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuGroup>
-                                    <DropdownMenuLabel>
-                                        Actions
-                                    </DropdownMenuLabel>
-
-
-                                    <Link
-                                        href={`/marketing/prospects/${prospect.id}`}
-                                    >
-
-                                        Voir
-                                    </Link>
-
-
-                                    <DropdownMenuItem >
-                                        <Link
-                                            href={`/dashboard/marketing/prospects/${prospect.id}/edit`}
-                                        >
-
-                                            Modifier
-                                        </Link>
-                                    </DropdownMenuItem>
-
-                                    <DropdownMenuSeparator />
-
-                                    <DropdownMenuItem className="text-red-600 focus:text-red-600">
-
-                                        Supprimer
-                                    </DropdownMenuItem>
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                );
-            },
+            return (
+                <ProspectActions
+                    prospect={prospect}
+                />
+            );
         },
+       
+    },
     ];
+    

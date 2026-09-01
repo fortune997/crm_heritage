@@ -46,7 +46,7 @@ export function SiteCard({
 }: SiteCardProps) {
 
     const imageUrl = site.site_medias
-        ? `https://etmatyqawktbyaezzcks.supabase.co/storage/v1/object/public/sites/${site.site_medias[0].chemin}`
+        ? `https://etmatyqawktbyaezzcks.supabase.co/storage/v1/object/public/sites/${site.site_medias[0]?.chemin}`
         : "/images/heritage-logo.jpg";
     return (
         <Card className="overflow-hidden">

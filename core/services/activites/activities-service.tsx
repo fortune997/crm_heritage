@@ -60,3 +60,49 @@ export const updateActivity = async (
   return data;
 };
 
+
+export type FollowUpState =
+    | "overdue"
+    | "today"
+    | "upcoming"
+    | "completed"
+    | "no_date";
+
+export type ActivityFollowUp = {
+    id: string;
+    prospect_id: string;
+    titre: string;
+    description: string | null;
+    statut_activite: string;
+    priorite: string | null;
+    prochain_relance: string | null;
+    completed_at: string | null;
+    created_at: string;
+    created_by: string | null;
+
+    prospect_name: string | null;
+    prospect_phone: string | null;
+    prospect_status: string | null;
+    created_by_name: string | null;
+
+    follow_up_state: FollowUpState;
+};
+
+export async function fetchActivityFollowUps():
+    Promise<ActivityFollowUp[]> {
+    const { data, error } = await supabase
+        .from("activity_follow_up_view")
+        .select("*")
+        .order("prochain_relance", {
+            ascending: true,
+            nullsFirst: false,
+        });
+
+    if (error) {
+        throw new Error(
+            `Erreur de récupération des relances : ${error.message}`
+        );
+    }
+
+    return data ?? [];
+}

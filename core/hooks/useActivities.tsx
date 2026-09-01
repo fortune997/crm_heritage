@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAcitvities, newActivities, updateActivity } from "../services/activites/activities-service";
+import { fetchAcitvities, fetchActivityFollowUps, newActivities, updateActivity } from "../services/activites/activities-service";
 import { toast } from "sonner";
 import { ProspectActivity } from "../types/activities";
 
@@ -88,9 +88,18 @@ const useUpdateProspectActivity = () => {
   });
 };
 
-
+const  useActivityFollowUps=() =>{
+    return useQuery({
+        queryKey: ["activity-follow-ups"],
+        queryFn: fetchActivityFollowUps,
+        staleTime: 30_000,
+        refetchInterval: 60_000,
+        refetchOnWindowFocus: true,
+    });
+}
 
 export {
   useCreateProspectActivity,
-  useUpdateProspectActivity
+  useUpdateProspectActivity,
+  useActivityFollowUps
 }

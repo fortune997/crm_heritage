@@ -1,3 +1,4 @@
+import { TProspects } from "@/core/types/prospects";
 import { ProspectFormValues } from "@/lib/validations/schema";
 
 export type ProspectStatus =
@@ -39,6 +40,9 @@ export interface Company {
 export interface ProspectFormProps {
     initialData?: Partial<ProspectFormValues> & { id?: string };
     submitLabel?: string;
+    prospect?: TProspects;
     open?: boolean;
+     trigger?: React.ReactNode;
+     type: string;
     onOpenChange?: (open: boolean) => void;
 }

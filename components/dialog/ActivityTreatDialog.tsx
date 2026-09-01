@@ -29,9 +29,10 @@ import { ProspectActivity } from "@/core/types/activities";
 import { useCreateProspectActivity, useUpdateProspectActivity } from "@/core/hooks/useActivities";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import { ActivityFollowUp } from "@/core/services/activites/activities-service";
 
 type ActivityTreatDialogProps = {
-    activity: ProspectActivity;
+    activity: ActivityFollowUp;
 };
 
 type ActivityResult =
@@ -139,7 +140,7 @@ export function ActivityTreatDialog({ activity }: ActivityTreatDialogProps) {
                 <div className="flex-1 overflow-y-auto space-y-4 px-6 py-4">
                     <div className="rounded-lg border bg-muted/40 p-4">
                         <p className="text-sm text-muted-foreground">Concernant</p>
-                        <p className="font-medium">{activity.prospects?.full_name}</p>
+                        <p className="font-medium">{activity.prospect_name}</p>
 
                         <p className="mt-2 text-sm text-muted-foreground">Activité</p>
                         <p className="font-medium">{activity.titre}</p>

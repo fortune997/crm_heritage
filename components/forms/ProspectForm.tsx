@@ -30,7 +30,7 @@ import { ProspectFormValues, prospectSchema } from "@/lib/validations/schema";
 import { ProspectFormProps } from "@/types/prospects/type";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { useAddProspect } from "@/core/hooks/prospects/useProspect";
+import { useAddProspect, useUpdateProspect } from "@/core/hooks/prospects/useProspect";
 import { useCanal } from "@/core/hooks/canal/useCanal";
 import { useSite } from "@/core/hooks/sites/useSite";
 import { Plus } from "lucide-react";
@@ -40,14 +40,24 @@ import { checkProspectPhone } from "@/core/services/prospects/prospect-service";
 
 
 export function ProspectForm({
-    initialData,
-    submitLabel = "Enregistre Prospect",
+    prospect,
+    submitLabel,
+    open: controlledOpen,
+    onOpenChange,
+    trigger,
+    type
 
 }: ProspectFormProps) {
-    const [open, setOpen] = useState(false);
+      const [internalOpen, setInternalOpen] = useState(false);
+
+    const open = controlledOpen ?? internalOpen;
+    const setOpen = onOpenChange ?? setInternalOpen;
+
+    const isEditing = Boolean(prospect?.id);
     const { user } = useAuth()
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { mutate: createProspect, isPending } = useAddProspect();
+    const { mutate: updateProspect, isPending: isUpdating } = useUpdateProspect();
     const [existingProspect, setExistingProspect] = useState<{
         id: string;
         full_name: string | null;
@@ -66,13 +76,13 @@ export function ProspectForm({
     } = useForm<ProspectFormValues>({
         resolver: zodResolver(prospectSchema),
         defaultValues: {
-            full_name: initialData?.full_name || "",
-            phone: initialData?.phone || "",
+            full_name: prospect?.full_name || "",
+            phone: prospect?.phone || "",
             
-            canal_prospection: initialData?.canal_prospection || "",
-            message: initialData?.message || "",
-            sexe: initialData?.sexe || "homme",
-            site_interesse: initialData?.site_interesse || "new",
+            canal_prospection: prospect?.canal_prospection || "",
+            message: prospect?.message || "",
+            sexe: prospect?.sexe || "homme",
+            site_interesse: prospect?.site_interesse || "new",
         },
     });
     const normalizePhone = (phone: string) => {
@@ -82,28 +92,46 @@ export function ProspectForm({
     const phone = watch("phone");
 
     useEffect(() => {
-        const checkPhone = async () => {
-            if (!phone || phone.trim().length < 9) {
+    const checkPhone = async () => {
+        if (!phone || phone.trim().length < 9) {
+            setExistingProspect(null);
+            return;
+        }
+
+        setIsCheckingPhone(true);
+
+        try {
+            const existing = await checkProspectPhone(phone);
+
+            if (existing && existing.id !== prospect?.id) {
+                setExistingProspect(existing);
+            } else {
                 setExistingProspect(null);
-                return;
             }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsCheckingPhone(false);
+        }
+    };
 
-            setIsCheckingPhone(true);
+    const timeout = setTimeout(checkPhone, 500);
 
-            try {
-                const prospect = await checkProspectPhone(phone);
-                setExistingProspect(prospect);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsCheckingPhone(false);
-            }
-        };
+    return () => clearTimeout(timeout);
+}, [phone, prospect?.id]);
 
-        const timeout = setTimeout(checkPhone, 500);
+useEffect(() => {
+    if (!open) return;
 
-        return () => clearTimeout(timeout);
-    }, [phone]);
+    reset({
+        full_name: prospect?.full_name ?? "",
+        phone: prospect?.phone ?? "",
+        canal_prospection: prospect?.canal_prospection ?? "",
+        message: prospect?.message ?? "",
+        sexe: prospect?.sexe ?? "homme",
+        site_interesse: prospect?.site_interesse ?? "",
+    });
+}, [open, prospect?.id, reset]);
 
     const onFormSubmit = async (data: ProspectFormValues) => {
         setIsSubmitting(true);
@@ -121,7 +149,20 @@ export function ProspectForm({
             status: 'Nouveau',
             phone: normalizedPhone
         }
-        createProspect(newdata);
+     
+
+         if (isEditing && prospect) {
+        updateProspect(
+            {
+                id: prospect.id,
+                prospectData :data,
+            }
+        );
+
+        return;
+    }else {
+   createProspect(newdata);
+    }
         reset()
 
     };
@@ -136,21 +177,27 @@ export function ProspectForm({
     return (
 
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger>
-                <Button className="rounded-2xl bg-green-800 text-white shadow">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Ajouter un prospect
-                </Button>
-            </DialogTrigger>
+            
+                  {trigger && (
+                        <DialogTrigger >
+                            {trigger}
+                        </DialogTrigger>
+                    )}
+            
 
 
 
             <DialogContent className="rounded-3xl max-h-[90vh] overflow-auto border bg-white text-foreground sm:max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Nouveau prospect </DialogTitle>
-                    <DialogDescription>
-                        Enregistrez un prospect.
-                    </DialogDescription>
+                     <DialogTitle>
+                {type === "edit" ? "Modifier le prospect" : "Nouveau prospect"}
+            </DialogTitle>
+
+            <DialogDescription>
+                {type === "edit"
+                    ? "Modifiez les informations du prospect."
+                    : "Enregistrez un nouveau prospect."}
+            </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(
                     onFormSubmit,
@@ -170,8 +217,9 @@ export function ProspectForm({
                                 render={({ field }) => (
                                     <Input
                                         id="full_name"
-                                        placeholder="John Doe"
+                                        placeholder="Dylane Mempouza"
                                         {...field}
+                                        value={field.value ?? ""}
                                         aria-invalid={!!getError("full_name")}
                                     />
                                 )}
@@ -260,76 +308,6 @@ export function ProspectForm({
                             )}
                         </Field>
 
-                        {/* Interest Type 
-                        <Field>
-                            <Label htmlFor="interest_type" className="required">
-                                Interest Type
-                            </Label>
-                            <Controller
-                                name="interest_type"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        defaultValue={field.value}
-                                    >
-                                        <SelectTrigger id="interest_type" aria-invalid={!!getError("interest_type")}>
-                                            <SelectValue placeholder="Select interest type..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="opendoors">Open Doors</SelectItem>
-                                            <SelectItem value="heritage">Heritage</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            {getError("interest_type") && (
-                                <p className="text-sm text-red-500 mt-1">{getError("interest_type")}</p>
-                            )}
-                        </Field>*/}
-
-                        {/* Company
-                        <Field>
-                            <Label htmlFor="company_id" className="required">
-                                Entreprise
-                            </Label>
-                            <Controller
-                                name="company_id"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        defaultValue={field.value}
-                                    >
-                                        <SelectTrigger id="company_id" aria-invalid={!!getError("company_id")}>
-                                            <SelectValue placeholder="Choisir l'entreprise..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {isLoading ? (
-                                                <SelectItem value="loading" disabled>
-                                                    Loading companies...
-                                                </SelectItem>
-                                            ) : (
-                                                companies.map((company) => (
-                                                    <SelectItem key={company.id} value={company.id}>
-                                                        {company.name}
-                                                    </SelectItem>
-                                                ))
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            {getError("company_id") && (
-                                <p className="text-sm text-red-500 mt-1">{getError("company_id")}</p>
-                            )}
-                        </Field> */}
-
-
-
-
                         <Field>
                             <Label htmlFor="company_id" className="required">
                                 Site choisi
@@ -366,37 +344,6 @@ export function ProspectForm({
                                 <p className="text-sm text-red-500 mt-1">{getError("site_interesse")}</p>
                             )}
                         </Field>
-                        {/* Status 
-                        <Field className="md:col-span-2">
-                            <Label htmlFor="status" className="required">
-                                Status du Prospect
-                            </Label>
-                            <Controller
-                                name="status"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        value={field.value}
-                                        defaultValue={field.value}
-                                    >
-                                        <SelectTrigger id="status" aria-invalid={!!getError("status")}>
-                                            <SelectValue placeholder="Selectionnez le statut..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Nouveau">Nouveau</SelectItem>
-                                            <SelectItem value="Contacté">Contacté</SelectItem>
-                                            <SelectItem value="Intéressé">Intéressé</SelectItem>
-                                            <SelectItem value="Converti">Converti</SelectItem>
-                                            <SelectItem value="Perdu">Perdu</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            {getError("status") && (
-                                <p className="text-sm text-red-500 mt-1">{getError("status")}</p>
-                            )}
-                        </Field>*/}
 
                         {/* Sexe */}
                         <Field>
@@ -460,9 +407,14 @@ export function ProspectForm({
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button type="submit" disabled={isPending}>
-                            {isPending ? "Enregistrement..." : submitLabel}
-                        </Button>
+                         <Button type="submit" disabled={isPending || isUpdating}>
+            {isPending
+                ? type === "edit"
+                    ? "Modification..."
+                    : "Enregistrement..."
+                : submitLabel ??
+                  (type === "edit" ? "Modifier" : "Enregistrer")}
+        </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

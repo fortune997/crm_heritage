@@ -15,7 +15,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { ScheduleVisitDialog } from "@/components/visites/schedule-visit-dialog";
-import { useAcitivities } from "@/core/hooks/useActivities";
+import { useAcitivities, useActivityFollowUps } from "@/core/hooks/useActivities";
 import { Activity } from "@/types";
 import { CalendarPlus, EyeIcon } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -29,6 +29,10 @@ export default function ActivitiesPage() {
     const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
     const { data: allActivities = [], isLoading } = useAcitivities()
     const router = useRouter()
+    const {
+    data: followUps = [],
+    isLoading: isFollowUpsLoading,
+} = useActivityFollowUps();
 
     const {
         data: canViewAll = true,
@@ -135,8 +139,9 @@ export default function ActivitiesPage() {
                 completedTodayCount={activityStats.completedTodayCount}
             />
 
-            <ActivityFollowUpBoard activities={allActivities} />
-
+           <ActivityFollowUpBoard
+    activities={followUps}
+/>
             <Card>
                 <CardHeader>
                     <CardTitle>Historique des activités</CardTitle>
