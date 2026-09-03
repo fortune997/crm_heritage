@@ -36,7 +36,7 @@ const useVisites = () => {
 
 const useConfirmedVisits = () => {
     return useQuery({
-        queryKey: ["visits", "confirmed"],
+        queryKey: ["visites", "confirmed"],
         queryFn: fetchConfirmedVisits,
     });
 }

@@ -330,23 +330,32 @@ export function ScheduleVisitDialog({
 
 
                                     <div className="space-y-4">
-                                        <div>
+                                        
+                                          <div>
                                             <Label className="mb-1.5 block text-sm font-medium">
-                                                Lieu / point de rendez-vous
+                                                <span>Lieu / point de rendez-vous</span>
+                                                 <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                             </Label>
 
-                                            <div className="relative">
-                                                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                            <select
+                                                {...register(
+                                                    "location"
+                                                )}
+                                                aria-placeholder="point de rencontre"
+                                                className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                                            >
+                                                <option value="rail_boulangerie">
+                                                    Boulangerie du rail
+                                                </option>
 
-                                                <textarea
-                                                    {...register(
-                                                        "location"
-                                                    )}
-                                                    rows={2}
-                                                    placeholder="Ex : Carrefour Makepe, devant..."
-                                                    className="w-full resize-none rounded-lg border bg-background py-2.5 pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-                                                />
-                                            </div>
+                                                <option value="Carrefour_logbaba">
+                                                   Carrefour Logbaba
+                                                </option>
+
+                                                 <option value="Nyalla_pariso">
+                                                   Nyalla pariso
+                                                </option>
+                                            </select>
                                         </div>
 
                                         <div>

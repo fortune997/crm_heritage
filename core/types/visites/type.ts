@@ -28,7 +28,7 @@ export interface Visit {
     date: string;
     startTime: string;
     endTime: string;
-
+venue_rdv: boolean;
     type: VisitType;
 
     status: VisitStatus;

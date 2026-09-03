@@ -3,7 +3,7 @@
 
 import ReadValue from "@/components/rapport/ReadValue";
 import { useUsersCommercial, useUsersTopographique } from "@/core/hooks/admin/useUsers";
-import { useAssignTopo, useConfirmedVisits, useTopoId, useUpdateVisitReport, useVisites } from "@/core/hooks/visites/useVisite";
+import { useAssignTopo, useConfirmedVisits, useUpdateVisitReport, useVisites } from "@/core/hooks/visites/useVisite";
 import { formatDate } from "@/core/lib/utils";
 import { HeritageUser } from "@/core/types/profiles";
 import { Visit } from "@/core/types/visites/type";
@@ -25,6 +25,7 @@ import {CalendarDays,Check,
     UserPlus,
     Users,
     X,
+    XCircle,
 } from "lucide-react";
 import {
     useEffect,
@@ -93,9 +94,6 @@ function getInterestClass(level: string) {
     }
 }
 
-/* =========================================================
-   MAIN COMPONENT
-========================================================= */
 
 export default function ConfirmedVisitsView() {
     //const [visits, setVisits] = useState<Visit[]>(initialVisits);
@@ -1409,7 +1407,7 @@ const siteOptions = useMemo(() => {
 
                                         <TableHeader>Intérêt</TableHeader>
 
-                                        <TableHeader>Rapport</TableHeader>
+                                        <TableHeader>Présence</TableHeader>
                                     </tr>
                                 </thead>
 
@@ -1578,7 +1576,7 @@ const siteOptions = useMemo(() => {
                                 dark:text-orange-400
                               "
                                                         >
-                                                            assigné
+                                                            Assigné un topographe
                                                         </span>
                                                     )}
                                                 </td>
@@ -1603,35 +1601,31 @@ const siteOptions = useMemo(() => {
 
                                                 {/* REPORT */}
 
-                                                <td className="px-5 py-4">
-                                                    <span
-                                                        className={`
-                              inline-flex items-center gap-1.5
-                              text-xs font-medium
-
-                              ${visit.status ===
-                                                                "completed"
-                                                                ? `
-                                    text-emerald-600
-                                    dark:text-emerald-400
-                                  `
-                                                                : `
-                                    text-orange-600
-                                    dark:text-orange-400
-                                  `
-                                                            }
-                            `}
-                                                    >
-                                                        {visit.status ===
-                                                            "completed" ? (
-                                                            <CheckCircle2 className="h-4 w-4" />
-                                                        ) : (
-                                                            <FileText className="h-4 w-4" />
-                                                        )}
-
-                                                        {visit.status}
-                                                    </span>
-                                                </td>
+                                               <td className="px-5 py-4">
+    <span
+        className={`
+            inline-flex items-center gap-1.5
+            text-xs font-medium
+            ${
+                visit.venue_rdv
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400"
+            }
+        `}
+    >
+        {visit.venue_rdv ? (
+            <>
+                <CheckCircle2 className="h-4 w-4" />
+                Oui
+            </>
+        ) : (
+            <>
+                <XCircle className="h-4 w-4" />
+                Non
+            </>
+        )}
+    </span>
+</td>
                                             </tr>
                                         );
                                     })}

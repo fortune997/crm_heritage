@@ -152,7 +152,7 @@ const TodayVisitCard = ({
 
                         {visit.report
                             ? "Voir le rapport"
-                            : "Ajouter le rapport"}
+                            : "rapport non effectué"}
                     </button>
                 </div>
             </div>

@@ -50,11 +50,8 @@ export default function CommercialVisitsPage() {
     const [resultFilter, setResultFilter] = useState<VisitResult | "all">("all");
     type VisitAction = "confirm" | "postpone";
 
-    const [selectedStatusVisit, setSelectedStatusVisit] =
-        useState<Visit | null>(null);
-
-    const [visitAction, setVisitAction] =
-        useState<VisitAction | null>(null);
+    const [selectedStatusVisit, setSelectedStatusVisit] = useState<Visit | null>(null);
+    const [visitAction, setVisitAction] = useState<VisitAction | null>(null);
     const router = useRouter()
 
     const { profile } = useAuth()
@@ -79,7 +76,6 @@ export default function CommercialVisitsPage() {
     }
 
     const today = getTodayDate();
-    console.log('TODAY', today)
 
     const todayVisits = useMemo(() => {
         return myVisites.filter((visit) => {
@@ -106,7 +102,7 @@ export default function CommercialVisitsPage() {
         const normalizedSearch = search.trim().toLowerCase();
 
         return myVisites
-            .filter((visit) => visit.visit_date !== today)
+            //.filter((visit) => visit.visit_date !== today)
             .filter((visit) => {
                 if (statusFilter === "all") {
                     return true;

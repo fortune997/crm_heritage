@@ -164,7 +164,7 @@ export type UpdateVisitStatusPayload =
         visitId: string;
         status: "postponed";
         newDate: string;
-        cancelation_reason?: string;
+        cancellation_reason?: string;
     };
 
 export async function updateVisitStatus(
@@ -213,7 +213,7 @@ export async function updateVisitStatus(
             previous_visit_date: currentVisit.visit_date,
             visit_date: payload.newDate,
             postponed_at: new Date().toISOString(),
-            cancelation_reason: payload.cancelation_reason ?? null,
+            cancellation_reason: payload.cancellation_reason ?? null,
             status: "postponed",
         })
         .eq("id", payload.visitId)
