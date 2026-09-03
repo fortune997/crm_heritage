@@ -2,6 +2,7 @@
 
 
 import ReadValue from "@/components/rapport/ReadValue";
+import { VisitAttendanceDialog } from "@/components/visites/modale/VisitAttendanceDialog";
 import { useUsersCommercial, useUsersTopographique } from "@/core/hooks/admin/useUsers";
 import { useAssignTopo, useConfirmedVisits, useUpdateVisitReport, useVisites } from "@/core/hooks/visites/useVisite";
 import { formatDate } from "@/core/lib/utils";
@@ -1601,31 +1602,16 @@ const siteOptions = useMemo(() => {
 
                                                 {/* REPORT */}
 
-                                               <td className="px-5 py-4">
-    <span
-        className={`
-            inline-flex items-center gap-1.5
-            text-xs font-medium
-            ${
-                visit.venue_rdv
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400"
-            }
-        `}
-    >
-        {visit.venue_rdv ? (
-            <>
-                <CheckCircle2 className="h-4 w-4" />
-                Oui
-            </>
-        ) : (
-            <>
-                <XCircle className="h-4 w-4" />
-                Non
-            </>
-        )}
-    </span>
-</td>
+                                                <td
+                                                    className="px-5 py-4"
+                                                    onClick={(event) => event.stopPropagation()}
+                                                >
+                                                    <VisitAttendanceDialog
+                                                        visitId={visit.id}
+                                                        currentValue={visit.venue_rdv}
+                                                        prospectName={visit.prospects?.full_name}
+                                                    />
+                                                </td>
                                             </tr>
                                         );
                                     })}
@@ -1718,7 +1704,7 @@ const siteOptions = useMemo(() => {
                                             Rapport de visite
                                         </h2>
 
-                                        <span
+                                        {/* <span
                                             className="
                         rounded-md
                         bg-slate-100
@@ -1731,7 +1717,7 @@ const siteOptions = useMemo(() => {
                       "
                                         >
                                             {openedVisit?.prospects?.full_name}
-                                        </span>
+                                        </span> */}
                                     </div>
                                 </div>
 
@@ -1783,7 +1769,7 @@ const siteOptions = useMemo(() => {
                                         >
                                             <Edit3 className="h-4 w-4" />
 
-                                            Modifier
+                                            Faire le rapport
                                         </button>
                                     )}
 

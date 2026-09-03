@@ -17,7 +17,7 @@ export function ConfirmVisitButton({
 
     const handleConfirm = () => {
         mutate({
-            id: visitId,
+            visitId: visitId,
         });
     };
 

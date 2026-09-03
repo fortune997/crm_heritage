@@ -44,7 +44,7 @@ export function VisitActions({
 }: VisitActionsProps) {
     const [detailsOpen, setDetailsOpen] = useState(false);
 
-    const { mutate, isPending } = useConfirmVisit();
+    const { mutate : confirmVisit, isPending } = useConfirmVisit();
 
     return (
         <>
@@ -74,8 +74,8 @@ export function VisitActions({
                                 onSelect={(event) => {
                                     event.preventDefault();
 
-                                    mutate({
-                                        id: visit.id,
+                                    confirmVisit({
+                                        visitId: visit.id,
                                     });
                                 }}
                             >

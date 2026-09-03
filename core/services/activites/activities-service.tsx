@@ -88,20 +88,18 @@ export type ActivityFollowUp = {
     follow_up_state: FollowUpState;
 };
 
-export async function fetchActivityFollowUps():
-    Promise<ActivityFollowUp[]> {
+export async function fetchActivityFollowUps() {
     const { data, error } = await supabase
         .from("activity_follow_up_view")
         .select("*")
+        .neq("follow_up_state", "completed")
         .order("prochain_relance", {
             ascending: true,
             nullsFirst: false,
         });
 
     if (error) {
-        throw new Error(
-            `Erreur de récupération des relances : ${error.message}`
-        );
+        throw new Error(error.message);
     }
 
     return data ?? [];

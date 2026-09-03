@@ -1,314 +1,256 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-    Backpack,
-    CalendarDays,
-    CheckCircle2,
-    ChevronDown,
-    Clock3,
-    FileText,
-    Filter,
-    History,
-    MapPin,
-    MessageSquareText,
-    MoreHorizontal,
-    Search,
-    SlidersHorizontal,
-    StepBack,
-    UserRound,
-    X,
-    XCircle,
-} from "lucide-react";
-
-import { useAuth } from "@/contexts/AuthContext";
-import { Visit, VisitResult, VisitStatus, VisitType } from "@/core/types/visites/type";
-import { useMyVisites } from "@/core/hooks/visites/useVisite";
-import { getTodayDate } from "@/lib/utils";
-import ReportDrawer from "@/components/visites/ReportDrawer";
-import EmptyState from "@/components/visites/EmptyState";
-import HistoryRow from "@/components/visites/HistoryRow";
-import FilterSelect from "@/components/visites/FilterSelect";
-import TodayVisitCard from "@/components/visites/TodayVisitCard";
-import TabButton from "@/components/visites/TabButton";
-import StatVisitCard from "@/components/visites/StatVisitCard";
-import { Button } from "@/components/ui/button";
+import { CalendarDays, FileText, History, StepBack } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+import EmptyState from "@/components/visites/EmptyState";
+import ReportDrawer from "@/components/visites/ReportDrawer";
+import TabButton from "@/components/visites/TabButton";
+import TodayVisitCard from "@/components/visites/TodayVisitCard";
+import { CommercialVisitStats } from "@/components/visites/commercial/CommercialVisitStats";
+import { HistorySection } from "@/components/visites/commercial/HistorySection";
+import { ReportsSection } from "@/components/visites/commercial/ReportsSection";
+import type {
+    CommercialVisit,
+    VisitFilters,
+    VisitPeriod,
+    VisitStatusFilter,
+} from "@/components/visites/commercial/types";
+import {
+    getReportDate,
+    hasVisitReport,
+    isInPeriod,
+    matchesVisitFilters,
+    normalizeDateKey,
+    sortVisitsNewest,
+    toLocalDateKey,
+} from "@/components/visites/commercial/visit-date-utils";
 import { VisitStatusDialog } from "@/components/visites/modale/visit-status-dialog";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useMyVisites } from "@/core/hooks/visites/useVisite";
 
+type ActiveTab = "today" | "reports" | "history";
+type VisitAction = "confirm" | "postpone";
 
-
-
-
+const EMPTY_FILTERS: VisitFilters = {
+    search: "",
+    status: "all",
+    type: "all",
+    result: "all",
+};
 
 export default function CommercialVisitsPage() {
-    const [activeTab, setActiveTab] = useState<"today" | "history">("today");
-    const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
-    const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState<VisitStatus | "all">("all");
-    const [typeFilter, setTypeFilter] = useState<VisitType | "all">("all");
-    const [resultFilter, setResultFilter] = useState<VisitResult | "all">("all");
-    type VisitAction = "confirm" | "postpone";
+    const router = useRouter();
+    const { profile } = useAuth();
+    const { data: visitsData = [] } = useMyVisites(profile?.id ?? "");
 
-    const [selectedStatusVisit, setSelectedStatusVisit] = useState<Visit | null>(null);
+    const now = useMemo(() => new Date(), []);
+    const today = toLocalDateKey(now);
+    const currentMonth = today.slice(0, 7);
+
+    const [activeTab, setActiveTab] = useState<ActiveTab>("today");
+    const [selectedVisit, setSelectedVisit] = useState<CommercialVisit | null>(null);
+    const [selectedStatusVisit, setSelectedStatusVisit] = useState<CommercialVisit | null>(null);
     const [visitAction, setVisitAction] = useState<VisitAction | null>(null);
-    const router = useRouter()
+    const [todayStatus, setTodayStatus] = useState<VisitStatusFilter>("all");
 
-    const { profile } = useAuth()
-    const { data: myVisites = [] } = useMyVisites(profile?.id ?? '')
+    const [reportPeriod, setReportPeriod] = useState<VisitPeriod>("yesterday");
+    const [reportDate, setReportDate] = useState(today);
+    const [reportMonth, setReportMonth] = useState(currentMonth);
+    const [reportFilters, setReportFilters] = useState<VisitFilters>(EMPTY_FILTERS);
 
-    const getTodayDate = (): string => {
-        const now = new Date();
+    const [historyPeriod, setHistoryPeriod] = useState<VisitPeriod>("all");
+    const [historyDate, setHistoryDate] = useState(today);
+    const [historyMonth, setHistoryMonth] = useState(currentMonth);
+    const [historyFilters, setHistoryFilters] = useState<VisitFilters>(EMPTY_FILTERS);
 
-        return [
-            now.getFullYear(),
-            String(now.getMonth() + 1).padStart(2, "0"),
-            String(now.getDate()).padStart(2, "0"),
-        ].join("-");
-    };
+    const myVisits = visitsData as CommercialVisit[];
 
-    function openVisitStatusDialog(
-        visit: Visit,
-        action: VisitAction
-    ) {
+    const allTodayVisits = useMemo(
+        () =>
+            [...myVisits]
+                .filter((visit) => normalizeDateKey(visit.visit_date) === today)
+                .sort((left, right) =>
+                    (left.start_time ?? "").localeCompare(right.start_time ?? "")
+                ),
+        [myVisits, today]
+    );
+
+    const todayVisits = useMemo(
+        () =>
+            allTodayVisits.filter(
+                (visit) => todayStatus === "all" || visit.status === todayStatus
+            ),
+        [allTodayVisits, todayStatus]
+    );
+
+    const reports = useMemo(
+        () =>
+            sortVisitsNewest(
+                myVisits
+                    .filter(hasVisitReport)
+                    .filter((visit) =>
+                        isInPeriod(
+                            getReportDate(visit),
+                            reportPeriod,
+                            reportDate,
+                            reportMonth,
+                            now
+                        )
+                    )
+                    .filter((visit) => matchesVisitFilters(visit, reportFilters)),
+                getReportDate
+            ),
+        [myVisits, reportPeriod, reportDate, reportMonth, reportFilters, now]
+    );
+
+    const historyVisits = useMemo(
+        () =>
+            sortVisitsNewest(
+                myVisits
+                    .filter((visit) =>
+                        isInPeriod(
+                            visit.visit_date,
+                            historyPeriod,
+                            historyDate,
+                            historyMonth,
+                            now
+                        )
+                    )
+                    .filter((visit) => matchesVisitFilters(visit, historyFilters))
+            ),
+        [myVisits, historyPeriod, historyDate, historyMonth, historyFilters, now]
+    );
+
+    const yesterdayReportsCount = useMemo(
+        () =>
+            myVisits.filter(
+                (visit) =>
+                    hasVisitReport(visit) &&
+                    isInPeriod(getReportDate(visit), "yesterday", today, currentMonth, now)
+            ).length,
+        [myVisits, today, currentMonth, now]
+    );
+
+    const weekReportsCount = useMemo(
+        () =>
+            myVisits.filter(
+                (visit) =>
+                    hasVisitReport(visit) &&
+                    isInPeriod(getReportDate(visit), "week", today, currentMonth, now)
+            ).length,
+        [myVisits, today, currentMonth, now]
+    );
+
+    const remainingTodayCount = allTodayVisits.filter((visit) =>
+        ["planned", "confirmed"].includes(visit.status)
+    ).length;
+
+    function openVisitStatusDialog(visit: CommercialVisit, action: VisitAction) {
         setSelectedStatusVisit(visit);
         setVisitAction(action);
     }
 
-    const today = getTodayDate();
-
-    const todayVisits = useMemo(() => {
-        return myVisites.filter((visit) => {
-            if (!visit || !visit.visit_date) {
-                return false;
-            }
-
-            if (visit.visit_date !== today) {
-                return false;
-            }
-
-            if (
-                statusFilter !== "all" &&
-                visit.status !== statusFilter
-            ) {
-                return false;
-            }
-
-            return true;
-        });
-    }, [myVisites, today, statusFilter]);
-
-    const historyVisits = useMemo(() => {
-        const normalizedSearch = search.trim().toLowerCase();
-
-        return myVisites
-            //.filter((visit) => visit.visit_date !== today)
-            .filter((visit) => {
-                if (statusFilter === "all") {
-                    return true;
-                }
-
-                return visit.status === statusFilter;
-            })
-            .filter((visit) => {
-                if (typeFilter === "all") {
-                    return true;
-                }
-
-                return visit.type === typeFilter;
-            })
-            .filter((visit) => {
-                if (resultFilter === "all") {
-                    return true;
-                }
-
-                return visit.result === resultFilter;
-            })
-            .filter((visit) => {
-                if (!normalizedSearch) {
-                    return true;
-                }
-
-                const content = [
-                    visit.location,
-                    visit.meeting_point,
-                    visit.report,
-                    visit.observation,
-                    visit.next_action,
-                    visit.objections,
-                ]
-                    .filter(
-                        (value): value is string =>
-                            typeof value === "string" && value.length > 0
-                    )
-                    .join(" ")
-                    .toLowerCase();
-
-                return content.includes(normalizedSearch);
-            });
-    }, [
-        myVisites,
-        today,
-        search,
-        statusFilter,
-        typeFilter,
-        resultFilter,
-    ]);
-
-
-    const completedToday = todayVisits.filter(
-        (visit) => visit.status === "completed"
-    ).length;
-
-    const plannedToday = todayVisits.filter(
-        (visit) => visit.status === "planned"
-    ).length;
-
-    const withReport = myVisites.filter(
-        (visit) =>
-            visit.status === "completed" &&
-            visit.report.trim().length > 0
-    ).length;
-
-
     return (
         <div className="min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
-            <div className="mx-auto max-w-375 px-4 py-6 sm:px-6 lg:px-8">
-
-                {/* HEADER */}
-
-                <header className="mb-6">
+            <main className="mx-auto max-w-[1500px] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+                <header className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-
-                        <div className="flex gap-4 items-center">
-                            <Button onClick={() => router.back()} className="mb-1 flex items-center gap-2 text-sm">
+                        <div className="flex items-start gap-3">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => router.back()}
+                                aria-label="Retour"
+                            >
                                 <StepBack className="h-4 w-4" />
-                                <span>
-                                    Retour
-                                </span>
-                            </Button >
-
-                            <h1 className="text-2xl font-bold tracking-tight">
-                                Mes visites
-                            </h1>
-
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Suivez vos visites du jour
-                            </p>
+                            </Button>
+                            <div>
+                                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
+                                    Espace commercial
+                                </p>
+                                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                                    Mes visites et rapports
+                                </h1>
+                                <p className="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
+                                    Suivez les rendez-vous du jour, consultez les rapports du
+                                    topographe et retrouvez tout votre historique.
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium shadow-sm transition hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
-                            >
-                                <CalendarDays className="h-4 w-4" />
-                                Aujourd'hui
-                            </button>
+                        <div className="inline-flex w-fit items-center gap-2 rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium dark:bg-slate-800">
+                            <CalendarDays className="h-4 w-4" />
+                            {new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(now)}
                         </div>
                     </div>
                 </header>
 
-                {/* STATS */}
+                <CommercialVisitStats
+                    todayCount={allTodayVisits.length}
+                    remainingTodayCount={remainingTodayCount}
+                    yesterdayReportsCount={yesterdayReportsCount}
+                    weekReportsCount={weekReportsCount}
+                />
 
-                <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-
-                    <StatVisitCard
-                        icon={<CalendarDays className="h-5 w-5" />}
-                        label="Visites du jour"
-                        value={todayVisits.length}
-                    />
-
-                    <StatVisitCard
-                        icon={<Clock3 className="h-5 w-5" />}
-                        label="À effectuer"
-                        value={plannedToday}
-                    />
-
-                    <StatVisitCard
-                        icon={<FileText className="h-5 w-5" />}
-                        label="Rapports enregistrés"
-                        value={withReport}
-                    />
-                </section>
-
-                {/* TABS */}
-
-                <div className="mb-5 border-b border-slate-200 dark:border-slate-800">
-                    <div className="flex gap-6">
-
+                <div className="border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex gap-5 overflow-x-auto">
                         <TabButton
                             active={activeTab === "today"}
-                            onClick={() =>
-                                setActiveTab("today")
-                            }
-                            icon={
-                                <CalendarDays className="h-4 w-4" />
-                            }
-                            label="Aujourd'hui"
-                            count={todayVisits.length}
+                            onClick={() => setActiveTab("today")}
+                            icon={<CalendarDays className="h-4 w-4" />}
+                            label="Aujourd’hui"
+                            count={allTodayVisits.length}
                         />
-
+                        <TabButton
+                            active={activeTab === "reports"}
+                            onClick={() => setActiveTab("reports")}
+                            icon={<FileText className="h-4 w-4" />}
+                            label="Rapports"
+                            count={reports.length}
+                        />
                         <TabButton
                             active={activeTab === "history"}
-                            onClick={() =>
-                                setActiveTab("history")
-                            }
-                            icon={
-                                <History className="h-4 w-4" />
-                            }
+                            onClick={() => setActiveTab("history")}
+                            icon={<History className="h-4 w-4" />}
                             label="Historique"
                             count={historyVisits.length}
                         />
                     </div>
                 </div>
 
-                {/* TODAY */}
-
                 {activeTab === "today" && (
-                    <section>
-
-                        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
+                    <section className="space-y-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <h2 className="font-semibold">
-                                    Visites confirmées du jour
-                                </h2>
-
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
-                                    Consultez rapidement vos visites et
-                                    leurs rapports.
+                                <h2 className="text-lg font-semibold">Programme de la journée</h2>
+                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                    Les visites sont classées selon leur heure de départ.
                                 </p>
                             </div>
-
-                            <FilterSelect
-                                value={statusFilter}
-                                onChange={(value) =>
-                                    setStatusFilter(value)
+                            <select
+                                value={todayStatus}
+                                onChange={(event) =>
+                                    setTodayStatus(event.target.value as VisitStatusFilter)
                                 }
-                                options={[
-                                    {
-                                        value: "all",
-                                        label: "Tous les statuts",
-                                    },
-                                    {
-                                        value: "planned",
-                                        label: "Planifiées",
-                                    },
-                                    {
-                                        value: "completed",
-                                        label: "Terminées",
-                                    },
-                                    {
-                                        value: "cancelled",
-                                        label: "Annulées",
-                                    },
-                                ]}
-                            />
+                                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900"
+                            >
+                                <option value="all">Tous les statuts</option>
+                                <option value="planned">Planifiées</option>
+                                <option value="confirmed">Confirmées</option>
+                                <option value="completed">Terminées</option>
+                                <option value="postponed">Reportées</option>
+                                <option value="cancelled">Annulées</option>
+                            </select>
                         </div>
 
                         {todayVisits.length === 0 ? (
-                            <EmptyState />
+                            <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+                                <EmptyState />
+                            </div>
                         ) : (
                             <div className="space-y-3">
                                 {todayVisits.map((visit) => (
@@ -317,222 +259,53 @@ export default function CommercialVisitsPage() {
                                         visit={visit}
                                         onReport={() => setSelectedVisit(visit)}
                                         onConfirmVisit={() =>
-                                            openVisitStatusDialog(
-                                                visit,
-                                                "confirm"
-                                            )
+                                            openVisitStatusDialog(visit, "confirm")
                                         }
                                         onPostponeVisit={() =>
-                                            openVisitStatusDialog(
-                                                visit,
-                                                "postpone"
-                                            )
+                                            openVisitStatusDialog(visit, "postpone")
                                         }
                                     />
                                 ))}
                             </div>
                         )}
-
                     </section>
                 )}
 
-                {/* HISTORY */}
+                {activeTab === "reports" && (
+                    <ReportsSection
+                        visits={reports}
+                        period={reportPeriod}
+                        selectedDate={reportDate}
+                        selectedMonth={reportMonth}
+                        filters={reportFilters}
+                        onPeriodChange={setReportPeriod}
+                        onSelectedDateChange={setReportDate}
+                        onSelectedMonthChange={setReportMonth}
+                        onFiltersChange={setReportFilters}
+                        onOpenReport={setSelectedVisit}
+                    />
+                )}
 
                 {activeTab === "history" && (
-                    <section>
-
-                        {/* FILTERS */}
-
-                        <div className="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-
-                            <div className="mb-4 flex items-center gap-2">
-                                <SlidersHorizontal className="h-4 w-4" />
-
-                                <h2 className="text-sm font-semibold">
-                                    Filtrer l'historique
-                                </h2>
-                            </div>
-
-                            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-5">
-
-                                {/* SEARCH */}
-
-                                <div className="relative lg:col-span-2">
-                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                                    <input
-                                        value={search}
-                                        onChange={(event) =>
-                                            setSearch(
-                                                event.target.value
-                                            )
-                                        }
-                                        placeholder="Rechercher une visite..."
-                                        className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none transition focus:border-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:focus:border-slate-500"
-                                    />
-                                </div>
-
-                                <FilterSelect
-                                    value={statusFilter}
-                                    onChange={(value) =>
-                                        setStatusFilter(value)
-                                    }
-                                    options={[
-                                        {
-                                            value: "all",
-                                            label: "Tous les statuts",
-                                        },
-                                        {
-                                            value: "planned",
-                                            label: "Planifiées",
-                                        },
-                                        {
-                                            value: "completed",
-                                            label: "Terminées",
-                                        },
-                                        {
-                                            value: "cancelled",
-                                            label: "Annulées",
-                                        },
-                                        {
-                                            value: "postponed",
-                                            label: "Reportées",
-                                        },
-                                    ]}
-                                />
-
-                                <FilterSelect
-                                    value={typeFilter}
-                                    onChange={(value) =>
-                                        setTypeFilter(value)
-                                    }
-                                    options={[
-                                        {
-                                            value: "all",
-                                            label: "Tous les types",
-                                        },
-                                        {
-                                            value: "terrain",
-                                            label: "Terrain",
-                                        },
-                                        {
-                                            value: "bureau",
-                                            label: "Bureau",
-                                        },
-                                        {
-                                            value: "autre",
-                                            label: "Autre",
-                                        },
-                                    ]}
-                                />
-
-                                <FilterSelect
-                                    value={resultFilter}
-                                    onChange={(value) =>
-                                        setResultFilter(value)
-                                    }
-                                    options={[
-                                        {
-                                            value: "all",
-                                            label: "Tous les résultats",
-                                        },
-                                        {
-                                            value: "very_interested",
-                                            label: "Très intéressé",
-                                        },
-                                        {
-                                            value: "interested",
-                                            label: "Intéressé",
-                                        },
-                                        {
-                                            value: "not_interested",
-                                            label: "Pas intéressé",
-                                        },
-                                        {
-                                            value: "pending",
-                                            label: "En attente",
-                                        },
-                                    ]}
-                                />
-                            </div>
-                        </div>
-
-                        {/* HISTORY TABLE */}
-
-                        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-
-                            <div className="overflow-x-auto">
-
-                                <table className="w-full min-w-[900px] text-sm">
-
-                                    <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
-
-                                        <tr>
-                                            <th className="px-5 py-3 text-left font-medium text-slate-500">
-                                                Date
-                                            </th>
-
-                                            <th className="px-5 py-3 text-left font-medium text-slate-500">
-                                                Visite
-                                            </th>
-
-                                            <th className="px-5 py-3 text-left font-medium text-slate-500">
-                                                Type
-                                            </th>
-
-                                            <th className="px-5 py-3 text-left font-medium text-slate-500">
-                                                Statut
-                                            </th>
-
-                                            <th className="px-5 py-3 text-left font-medium text-slate-500">
-                                                Résultat
-                                            </th>
-                                            <th className="px-5 py-3 text-left font-medium text-slate-500">
-                                                Conf
-                                            </th>
-
-                                            <th className="px-5 py-3 text-right font-medium text-slate-500">
-                                                Action
-                                            </th>
-                                        </tr>
-
-                                    </thead>
-
-                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-
-                                        {historyVisits.map(
-                                            (visit) => (
-                                                <HistoryRow
-                                                    key={visit.id}
-                                                    visit={visit}
-                                                    onReport={() =>
-                                                        setSelectedVisit(
-                                                            visit
-                                                        )
-                                                    }
-                                                />
-                                            )
-                                        )}
-
-                                    </tbody>
-
-                                </table>
-
-                                {historyVisits.length === 0 && (
-                                    <EmptyState />
-                                )}
-                            </div>
-                        </div>
-                    </section>
+                    <HistorySection
+                        visits={historyVisits}
+                        period={historyPeriod}
+                        selectedDate={historyDate}
+                        selectedMonth={historyMonth}
+                        filters={historyFilters}
+                        onPeriodChange={setHistoryPeriod}
+                        onSelectedDateChange={setHistoryDate}
+                        onSelectedMonthChange={setHistoryMonth}
+                        onFiltersChange={setHistoryFilters}
+                        onOpenReport={setSelectedVisit}
+                    />
                 )}
-            </div>
+            </main>
 
             <VisitStatusDialog
                 visit={selectedStatusVisit}
                 action={visitAction}
-                open={Boolean(
-                    selectedStatusVisit && visitAction
-                )}
+                open={Boolean(selectedStatusVisit && visitAction)}
                 onOpenChange={(open) => {
                     if (!open) {
                         setSelectedStatusVisit(null);
@@ -544,12 +317,9 @@ export default function CommercialVisitsPage() {
             {selectedVisit && (
                 <ReportDrawer
                     visit={selectedVisit}
-                    onClose={() =>
-                        setSelectedVisit(null)
-                    }
+                    onClose={() => setSelectedVisit(null)}
                 />
             )}
         </div>
     );
 }
-

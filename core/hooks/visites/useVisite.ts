@@ -1,5 +1,5 @@
 import supabase from "@/core/lib/supabase";
-import { UpdateVisitReport, UpdateVisitStatusPayload, assignedTopographe, fetchAllVisiste, fetchCommercialVisiste, fetchConfirmedVisits, newVisite, updateVisitReport, updateVisitStatus } from "@/core/services/visites/visite-service";
+import { UpdateVisitReport, UpdateVisitStatusPayload, assignedTopographe, fetchAllVisiste, fetchCommercialVisiste, fetchConfirmedVisits, newVisite, updateVisitAttendance, updateVisitReport, updateVisitStatus } from "@/core/services/visites/visite-service";
 import { Visit } from "@/core/types/visites/type";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -147,7 +147,7 @@ interface ConfirmVisitInput {
     id: string;
 }
 
-export function useConfirmVisit() {
+/* export function useConfirmVisit() {
     const queryClient = useQueryClient();
 
 
@@ -173,6 +173,27 @@ export function useConfirmVisit() {
             await queryClient.invalidateQueries({
                 queryKey: ["visites"],
             });
+        },
+    });
+}
+ */
+const useConfirmVisit = () =>{
+    const queryClient = useQueryClient();
+
+
+    return useMutation({
+        mutationFn: updateVisitAttendance,
+        onSuccess: async (_data, variables) => {
+            await queryClient.invalidateQueries({ queryKey: ["visites"] });
+            toast.success(
+                variables.isPresent
+                    ? "Le prospect a été marqué présent."
+                    : "Le prospect a été marqué absent."
+            );
+            
+        },
+        onError: (error: Error) => {
+            toast.error(`Impossible de modifier la présence : ${error.message}`);
         },
     });
 }
@@ -215,5 +236,6 @@ export {
     useUpdateVisitReport,
     useMyVisites,
     useUpdateVisitStatus,
-    useConfirmedVisits
+    useConfirmedVisits,
+    useConfirmVisit
 }

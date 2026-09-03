@@ -3,6 +3,11 @@ import supabase from "@/core/lib/supabase";
 import { InterestLevel } from "@/app/(root)/topographiques/rapport/page";
 import { Visit } from "@/core/types/visites/type";
 
+interface UpdateAttendancePayload {
+    visitId: string;
+    isPresent?: boolean;
+}
+
 export const newVisite = async (formData: ScheduleVisitFormValues) => {
     const { data, error } = await supabase
         .from("visits")
@@ -153,6 +158,26 @@ export const updateVisitReport = async (
 };
 
 
+
+export const updateVisitAttendance = async({
+    visitId,
+    isPresent,
+}: UpdateAttendancePayload) => {
+    const { data, error } = await supabase
+        .from("visits")
+        .update({ venue_rdv: isPresent })
+        .eq("id", visitId)
+        .select("id")
+        .single();
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
+    if (!data) {
+        throw new Error("La visite n'a pas été trouvée ou l'accès est refusé.");
+    }
+}
 
 
 export type UpdateVisitStatusPayload =

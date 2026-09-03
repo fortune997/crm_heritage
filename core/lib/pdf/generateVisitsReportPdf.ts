@@ -353,6 +353,7 @@ export function generateVisitsReportPdf(
                         "Surface",
                         "Intérêt",
                         "Prix souhaité",
+                        "Présence",
                         "Rapport et suivi",
                     ],
                 ],
@@ -369,6 +370,8 @@ export function generateVisitsReportPdf(
                         : "-",
                     safeText(visit.interest_level, "-"),
                     formatCurrency(visit.desired_price),
+                    safeText(visit.venue_rdv, "-"),
+
                     visitReportDetails(visit),
                 ]),
                 styles: {
@@ -399,7 +402,8 @@ export function generateVisitsReportPdf(
                     4: { cellWidth: 18 },
                     5: { cellWidth: 25 },
                     6: { cellWidth: 24 },
-                    7: { cellWidth: 99 },
+                    7: { cellWidth: 12 },
+                    8: { cellWidth: 99 },
                 },
             });
 

@@ -39,13 +39,30 @@ const normalizeStatus = (status?: string | null) =>
 export function ActivityFollowUpBoard({
     activities,
 }: ActivityFollowUpBoardProps) {
-    const priorityActivities = activities
-        .filter(
-            (activity) =>
-                isDueOrOverdue(activity.prochain_relance) &&
-                normalizeStatus(activity.statut_activite) !== "Terminée"
-        )
-        .slice(0, 5);
+   const priorityActivities = activities
+    .filter((activity) => {
+        const normalizedActivityStatus =
+           normalizeStatus(activity.statut_activite) !== "terminee"
+
+        const isCompleted =
+            activity.follow_up_state === "completed" 
+
+        return (
+            !isCompleted &&
+            isDueOrOverdue(activity.prochain_relance)
+        );
+    })
+    .sort((first, second) => {
+        const firstDate = new Date(
+            first.prochain_relance ?? ""
+        ).getTime();
+
+        const secondDate = new Date(
+            second.prochain_relance ?? ""
+        ).getTime();
+
+        return firstDate - secondDate;
+    });
 
 
     return (
