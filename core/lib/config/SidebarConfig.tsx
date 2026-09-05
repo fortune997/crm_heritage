@@ -19,6 +19,13 @@ import {
     User,
     DollarSign,
     Banknote,
+    BarChart3,
+    ActivityIcon,
+    CalendarClock,
+    HandshakeIcon,
+    Users2,
+    LayoutDashboardIcon,
+    TargetIcon,
 } from "lucide-react";
 
 type TRequiredPermissions = string[];
@@ -69,6 +76,77 @@ export const sidebarConfig: SidebarConfig = {
 
             ],
         },
+       {
+    title: "Closing",
+    url: "/closing",
+    icon: TargetIcon,
+
+    requiredPermissions: [
+        "closing.read.all",
+        "closing.read.assigned",
+    ],
+
+    items: [
+        {
+            title: "Vue d’ensemble",
+            url: "/closing",
+            icon: LayoutDashboardIcon,
+
+            requiredPermissions: [
+                "closing.read.all",
+                "closing.read.assigned",
+            ],
+        },
+        {
+            title: "Prospects à closer",
+            url: "/closing/prospects",
+            icon: Users2,
+
+            requiredPermissions: [
+                "closing.read.all",
+                "closing.read.assigned",
+            ],
+        },
+       /*  {
+            title: "Pipeline",
+            url: "/closing/pipeline",
+            icon: HandshakeIcon,
+
+            requiredPermissions: [
+                "closing.read.all",
+                "closing.read.assigned",
+            ],
+        },
+        {
+            title: "Relances",
+            url: "/closing/follow-ups",
+            icon: CalendarClock,
+
+            requiredPermissions: [
+                "closing.manage",
+            ],
+        }, */
+        {
+            title: "Activités",
+            url: "/closing/activities",
+            icon: ActivityIcon,
+
+            requiredPermissions: [
+                "closing.read.all",
+                "closing.read.assigned",
+            ],
+        },
+       /*  {
+            title: "Performances",
+            url: "/closing/reports",
+            icon: BarChart3,
+
+            requiredPermissions: [
+                "closing.report",
+            ],
+        }, */
+    ],
+},
         {
             title: "Corporate",
             url: "/corporate",
