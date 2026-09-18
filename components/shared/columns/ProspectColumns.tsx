@@ -31,6 +31,7 @@ import { ActivityCreateDialog } from "@/components/dialog/ActivitiesCreateDialog
 import { formatDate } from "@/core/types/time-formatting";
 import { ProspectForm } from "@/components/forms/ProspectForm";
 import ProspectActions from "@/components/dialog/ProspectActions";
+import { QualificationStatus } from "@/components/status/QualificationStatus";
 
 
 // ============================================================
@@ -261,6 +262,16 @@ export const getProspectColumns = (
             ),
         },
 
+        {
+  accessorKey: "qualification",
+  header: "Qualification",
+  cell: ({ row }) => (
+    <QualificationStatus
+      qualificationStatus={row.original.qualification}
+    />
+  ),
+},
+
 
         // ----------------------------------------------------------
         // STATUT
@@ -286,21 +297,30 @@ export const getProspectColumns = (
         // ----------------------------------------------------------
 
 
-        {
-            accessorKey: "created_at",
+       {
+  accessorKey: "created_at",
+  header: "Créé le",
+  cell: ({ row }) => {
+    const value = row.original.created_at;
+    const date = value ? new Date(value) : null;
 
-            header: "Créé le",
-
-            cell: ({ row }) => (
-                <span className="text-sm">
-                    {formatDate(new Date(row.original.created_at))}
-                </span>
-            ),
-        },
+    return (
+      <span className="whitespace-nowrap text-sm">
+        {date && !Number.isNaN(date.getTime())
+          ? date.toLocaleDateString("fr-FR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })
+          : "Non défini"}
+      </span>
+    );
+  },
+},
 
         {
             accessorKey: "action",
-            header: "Actions",
+            header: "Activités",
             cell: ({ row }) => (
                 <ActivityCreateDialog
                     prospectId={row.original.id}

@@ -11,6 +11,7 @@ export interface newActivityProps {
 
 type CreateActivityInput = ActivitiesFormValues & {
   created_by: string;
+
 };
 
 export type UpdateActivityInput = Partial<CreateActivityInput> & {
@@ -29,18 +30,48 @@ export const fetchAcitvities = async () => {
 };
 
 export const newActivities = async (
-
   payload: CreateActivityInput
 ) => {
+  const activitiesDATA = {
+    prospect_id: payload.prospect_id,
+    titre: payload.titre,
+    description: payload.description,
+    canal_relance: payload.canal_relance,
+    statut_activite: payload.statut_activite,
+    prochain_relance: payload.prochain_relance,
+    created_by: payload.created_by,
+  };
+
   const { data, error } = await supabase
     .from("prospect_activities")
-    .insert(payload)
+    .insert(activitiesDATA)
     .select();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(`Prospect : ${error.message}`);
+  }
+
+  // Conserver la qualification actuelle si aucune n'est fournie.
+  if (payload.qualification != null) {
+    const { error: errorProspect } = await supabase
+      .from("prospects")
+      .update({
+        qualification: payload.qualification,
+      })
+      .eq("id", payload.prospect_id)
+      .select("id")
+      .single();
+
+    if (errorProspect) {
+      throw new Error(
+        `L’activité a été créée, mais la qualification n’a pas pu être mise à jour : ${errorProspect.message}`
+      );
+    }
+  }
 
   return data;
 };
+
 
 
 export const updateActivity = async (

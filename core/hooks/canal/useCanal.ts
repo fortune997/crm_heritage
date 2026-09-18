@@ -1,4 +1,3 @@
-
 import { addCanal, getCanal } from "@/core/services/digital/canal-service";
 import { TCanal } from "@/core/types/digital/type";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

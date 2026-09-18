@@ -46,10 +46,12 @@ export const prospectSchema = z
     .object({
         full_name: z.string().min(1, "Full name is required"),
         sexe: z.string().min(1, "Sexe is required"),
+        langue: z.string().min(1, "Langue is required"),
         phone: z.string().min(1, "Phone number is required"),
         site_interesse: z.string().min(1, "Site intéresse"),
         canal_prospection: z.string().min(1, "Source is required"),
         message: z.string().optional(),
+        qualification: z.string(),
     })
 
 
@@ -62,7 +64,7 @@ export const activitySchema = z.object({
     titre: z.string().min(3, "Le titre est obligatoire"),
 
     description: z.string().min(5, "La description est obligatoire"),
-
+    qualification: z.string().optional(),
     canal_relance: z.string().min(1, "Sélectionnez le canal de relance"),
     statut_activite: z.string().min(1, "Sélectionnez le statut d'activité"),
 
