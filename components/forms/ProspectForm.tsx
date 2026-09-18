@@ -49,7 +49,6 @@ export function ProspectForm({
 
 }: ProspectFormProps) {
       const [internalOpen, setInternalOpen] = useState(false);
-
     const open = controlledOpen ?? internalOpen;
     const setOpen = onOpenChange ?? setInternalOpen;
 
@@ -78,9 +77,10 @@ export function ProspectForm({
         defaultValues: {
             full_name: prospect?.full_name || "",
             phone: prospect?.phone || "",
-            
             canal_prospection: prospect?.canal_prospection || "",
             message: prospect?.message || "",
+            langue: prospect?.langue || "",
+            qualification: prospect?.qualification || "",
             sexe: prospect?.sexe || "homme",
             site_interesse: prospect?.site_interesse || "new",
         },
@@ -129,6 +129,9 @@ useEffect(() => {
         canal_prospection: prospect?.canal_prospection ?? "",
         message: prospect?.message ?? "",
         sexe: prospect?.sexe ?? "homme",
+        qualification: prospect?.qualification || "",
+            langue: prospect?.langue || "",
+
         site_interesse: prospect?.site_interesse ?? "",
     });
 }, [open, prospect?.id, reset]);
@@ -309,7 +312,7 @@ useEffect(() => {
                         </Field>
 
                         <Field>
-                            <Label htmlFor="company_id" className="required">
+                            <Label htmlFor="site_interesse" className="required">
                                 Site choisi
                             </Label>
                             <Controller
@@ -345,6 +348,39 @@ useEffect(() => {
                             )}
                         </Field>
 
+                        {/* qualification prospect*/}
+
+                             <Field>
+                            <Label htmlFor="qualification" className="required">
+                                Qualification
+                            </Label>
+                            <Controller
+                                name="qualification"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <SelectTrigger id="qualification" aria-invalid={!!getError("qualification")}>
+                                            <SelectValue placeholder="Choisir son qualification..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="H1">H1 - Non Intéressé</SelectItem>
+                                            <SelectItem value="H2">H2 - Besoins d'Infos</SelectItem>
+                                            <SelectItem value="H3">H3 - Non Intéressé</SelectItem>
+                                            <SelectItem value="H4">H4 - Intentions RDV bureau</SelectItem>
+                                            <SelectItem value="H5">H5 - Effectuer Visite</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {getError("qualification") && (
+                                <p className="text-sm text-red-500 mt-1">{getError("qualification")}</p>
+                            )}
+                        </Field>
+
                         {/* Sexe */}
                         <Field>
                             <Label htmlFor="sexe" className="required">
@@ -371,6 +407,34 @@ useEffect(() => {
                             />
                             {getError("sexe") && (
                                 <p className="text-sm text-red-500 mt-1">{getError("sexe")}</p>
+                            )}
+                        </Field>
+                        {/* Langue */}
+                        <Field>
+                            <Label htmlFor="sexe" className="required">
+                                Langue
+                            </Label>
+                            <Controller
+                                name="langue"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <SelectTrigger id="langue" aria-invalid={!!getError("langue")}>
+                                            <SelectValue placeholder="Choisir son langue..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="anglais">Anglais</SelectItem>
+                                            <SelectItem value="francais">Français</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {getError("langue") && (
+                                <p className="text-sm text-red-500 mt-1">{getError("langue")}</p>
                             )}
                         </Field>
 
