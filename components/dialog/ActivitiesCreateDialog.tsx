@@ -97,6 +97,7 @@ export function ActivityCreateDialog(
             titre: "",
             description: "",
             canal_relance: "",
+            qualification: "",
             statut_activite: "A faire",
             prochain_relance: new Date(),
         },
@@ -108,6 +109,7 @@ export function ActivityCreateDialog(
             titre: "",
             description: "",
             canal_relance: "",
+            qualification: "",
             statut_activite: "A faire",
             prochain_relance: new Date(),
         });
@@ -308,6 +310,8 @@ export function ActivityCreateDialog(
                                 )}
                             </Field>
 
+                              
+
                             <Field>
                                 <Label>Statut de la Rélance</Label>
                                 <Controller
@@ -350,7 +354,7 @@ export function ActivityCreateDialog(
 
 
                         </div>
-
+<div className="flex gap-5">
                         <Field>
                             <Label>Prochaine Rélance</Label>
                             <Controller
@@ -376,8 +380,40 @@ export function ActivityCreateDialog(
                                 <p className="text-sm text-red-500 mt-1">{getError("prochain_relance")}</p>
                             )}
                         </Field>
+                        {/* qualification prospect*/}
 
+                             <Field>
+                            <Label htmlFor="qualification" className="required">
+                                Qualification
+                            </Label>
+                            <Controller
+                                name="qualification"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <SelectTrigger id="qualification" aria-invalid={!!getError("qualification")}>
+                                            <SelectValue placeholder="Choisir son qualification..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="H1">H1 - Non Intéressé</SelectItem>
+                                            <SelectItem value="H2">H2 - Besoins d'Infos</SelectItem>
+                                            <SelectItem value="H3">H3 - Non Intéressé</SelectItem>
+                                            <SelectItem value="H4">H4 - Intentions RDV bureau</SelectItem>
+                                            <SelectItem value="H5">H5 - Effectuer Visite</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {getError("qualification") && (
+                                <p className="text-sm text-red-500 mt-1">{getError("qualification")}</p>
+                            )}
+                        </Field>
 
+</div>
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-medium">Description / Note</label>
