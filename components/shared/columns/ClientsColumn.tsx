@@ -7,15 +7,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
     ArrowUpDown,
     Eye,
+    Mail,
     MoreHorizontal,
-    Pencil,
+    Phone,
     Trash2,
     UserRound,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,44 +25,36 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// features/clients/types/client.type.ts
-
 export type ClientStatus =
     | "actif"
     | "en_negociation"
     | "reservation"
     | "paiement_en_cours"
     | "finalise"
-    | "inactif";
+    | "inactif"
+    | (string & {});
 
-export type ClientType = "particulier" | "entreprise" | "diaspora";
+export type ClientType = "particulier" | "entreprise" | "diaspora" | (string & {});
 
 export type Client = {
     id: string;
+    prospectId?: string | null;
+    reference?: string | null;
     fullName: string;
-    phone: string;
-    email?: string;
-    type: ClientType;
+    phone?: string | null;
+    email?: string | null;
+    type?: ClientType | null;
     status: ClientStatus;
-    property: string;
-    totalAmount?: number;
-    amountPaid?: number;
-    assignedTo?: string;
-    lastActivityDate?: string;
+    property?: string | null;
+    source?: string | null;
+    assignedTo?: string | null;
+    convertedAt?: string | null;
     createdAt: string;
+    updatedAt?: string | null;
+    notes?: string | null;
 };
 
-function formatCurrency(value?: number) {
-    if (!value) return "Non défini";
-
-    return new Intl.NumberFormat("fr-FR", {
-        style: "currency",
-        currency: "XAF",
-        maximumFractionDigits: 0,
-    }).format(value);
-}
-
-function formatDate(value?: string) {
+function formatDate(value?: string | null) {
     if (!value) return "Non renseigné";
 
     return new Intl.DateTimeFormat("fr-FR", {
@@ -72,31 +64,33 @@ function formatDate(value?: string) {
     }).format(new Date(value));
 }
 
-function getClientStatusLabel(status: ClientStatus) {
-    const labels: Record<ClientStatus, string> = {
-        actif: "Actif",
-        en_negociation: "En négociation",
-        reservation: "Réservation",
-        paiement_en_cours: "Paiement en cours",
-        finalise: "Finalisé",
-        inactif: "Inactif",
-    };
+const clientStatusLabels: Record<string, string> = {
+    actif: "Actif",
+    en_negociation: "En négociation",
+    reservation: "Réservation",
+    paiement_en_cours: "Paiement en cours",
+    finalise: "Finalisé",
+    inactif: "Inactif",
+};
 
-    return labels[status];
+function getClientStatusLabel(status: ClientStatus) {
+    return clientStatusLabels[status] ?? status.replaceAll("_", " ");
 }
 
-function getClientTypeLabel(type: ClientType) {
-    const labels: Record<ClientType, string> = {
+function getClientTypeLabel(type?: ClientType | null) {
+    if (!type) return "Non défini";
+
+    const labels: Record<string, string> = {
         particulier: "Particulier",
         entreprise: "Entreprise",
         diaspora: "Diaspora",
     };
 
-    return labels[type];
+    return labels[type] ?? type;
 }
 
 function ClientStatusBadge({ status }: { status: ClientStatus }) {
-    const className: Record<ClientStatus, string> = {
+    const className: Record<string, string> = {
         actif: "border-blue-500/20 bg-blue-500/10 text-blue-600",
         en_negociation: "border-yellow-500/20 bg-yellow-500/10 text-yellow-700",
         reservation: "border-purple-500/20 bg-purple-500/10 text-purple-600",
@@ -106,32 +100,32 @@ function ClientStatusBadge({ status }: { status: ClientStatus }) {
     };
 
     return (
-        <Badge variant="outline" className={className[status]}>
+        <Badge
+            variant="outline"
+            className={className[status] ?? "border-border bg-muted text-muted-foreground"}
+        >
             {getClientStatusLabel(status)}
         </Badge>
     );
 }
 
-function ClientTypeBadge({ type }: { type: ClientType }) {
-    const className: Record<ClientType, string> = {
+function ClientTypeBadge({ type }: { type?: ClientType | null }) {
+    const className: Record<string, string> = {
         particulier: "border-border bg-muted text-muted-foreground",
         entreprise: "border-blue-500/20 bg-blue-500/10 text-blue-600",
         diaspora: "border-green-500/20 bg-green-500/10 text-green-600",
     };
 
     return (
-        <Badge variant="outline" className={className[type]}>
+        <Badge
+            variant="outline"
+            className={
+                (type && className[type]) ??
+                "border-border bg-muted text-muted-foreground"
+            }
+        >
             {getClientTypeLabel(type)}
         </Badge>
-    );
-}
-
-function getPaymentProgress(client: Client) {
-    if (!client.totalAmount || !client.amountPaid) return 0;
-
-    return Math.min(
-        Math.round((client.amountPaid / client.totalAmount) * 100),
-        100
     );
 }
 
@@ -158,11 +152,9 @@ export const clientColumns: ColumnDef<Client>[] = [
                     </div>
 
                     <div>
-                        <div className="font-medium text-foreground">
-                            {client.fullName}
-                        </div>
+                        <div className="font-medium text-foreground">{client.fullName}</div>
                         <div className="text-xs text-muted-foreground">
-                            {client.phone}
+                            {client.phone ?? "Téléphone non renseigné"}
                         </div>
                     </div>
                 </div>
@@ -176,41 +168,17 @@ export const clientColumns: ColumnDef<Client>[] = [
     },
     {
         accessorKey: "property",
-        header: "Bien concerné",
+        header: "Intérêt",
         cell: ({ row }) => (
             <div>
-                <div className="font-medium">{row.original.property}</div>
+                <div className="font-medium">
+                    {row.original.property ?? "Bien non défini"}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                    Montant total : {formatCurrency(row.original.totalAmount)}
+                    Source : {row.original.source ?? "Non renseignée"}
                 </div>
             </div>
         ),
-    },
-    {
-        accessorKey: "amountPaid",
-        header: "Paiement",
-        cell: ({ row }) => {
-            const client = row.original;
-            const progress = getPaymentProgress(client);
-
-            return (
-                <div className="min-w-[160px] space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                            {formatCurrency(client.amountPaid)}
-                        </span>
-                        <span className="font-medium">{progress}%</span>
-                    </div>
-
-                    <div className="h-2 rounded-full bg-muted">
-                        <div
-                            className="h-2 rounded-full bg-primary"
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                </div>
-            );
-        },
     },
     {
         accessorKey: "status",
@@ -227,11 +195,20 @@ export const clientColumns: ColumnDef<Client>[] = [
         ),
     },
     {
-        accessorKey: "lastActivityDate",
-        header: "Dernière activité",
+        accessorKey: "convertedAt",
+        header: "Conversion",
         cell: ({ row }) => (
             <span className="text-sm text-muted-foreground">
-                {formatDate(row.original.lastActivityDate)}
+                {formatDate(row.original.convertedAt ?? row.original.createdAt)}
+            </span>
+        ),
+    },
+    {
+        accessorKey: "reference",
+        header: "Référence",
+        cell: ({ row }) => (
+            <span className="text-sm text-muted-foreground">
+                {row.original.reference ?? "Non renseignée"}
             </span>
         ),
     },
@@ -243,7 +220,7 @@ export const clientColumns: ColumnDef<Client>[] = [
             return (
                 <div className="flex justify-end">
                     <DropdownMenu>
-                        <DropdownMenuTrigger >
+                        <DropdownMenuTrigger>
                             <Button variant="ghost" size="icon" className="size-8">
                                 <MoreHorizontal className="size-4" />
                             </Button>
@@ -252,19 +229,48 @@ export const clientColumns: ColumnDef<Client>[] = [
                         <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                            <DropdownMenuItem >
-                                <Link href={`/dashboard/marketing/clients/${client.id}`}>
+                            <DropdownMenuItem>
+                                <Link
+                                    href={`/marketing/clients/${client.id}`}
+                                    className="flex items-center"
+                                >
                                     <Eye className="mr-2 size-4" />
                                     Voir détails
                                 </Link>
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem >
-                                <Link href={`/dashboard/marketing/clients/${client.id}/edit`}>
-                                    <Pencil className="mr-2 size-4" />
-                                    Modifier
-                                </Link>
-                            </DropdownMenuItem>
+                            {client.prospectId && (
+                                <DropdownMenuItem>
+                                    <Link
+                                        href={`/marketing/prospects/${client.prospectId}`}
+                                        className="flex items-center"
+                                    >
+                                        <UserRound className="mr-2 size-4" />
+                                        Voir prospect
+                                    </Link>
+                                </DropdownMenuItem>
+                            )}
+
+                            {client.phone && (
+                                <DropdownMenuItem>
+                                    <a href={`tel:${client.phone}`} className="flex items-center">
+                                        <Phone className="mr-2 size-4" />
+                                        Appeler
+                                    </a>
+                                </DropdownMenuItem>
+                            )}
+
+                            {client.email && (
+                                <DropdownMenuItem>
+                                    <a
+                                        href={`mailto:${client.email}`}
+                                        className="flex items-center"
+                                    >
+                                        <Mail className="mr-2 size-4" />
+                                        Envoyer un email
+                                    </a>
+                                </DropdownMenuItem>
+                            )}
 
                             <DropdownMenuSeparator />
 

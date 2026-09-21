@@ -14,7 +14,7 @@ export type ExistingProspect = {
   full_name: string | null;
 };
 
-// Récuperer tout les prospects
+/* // Récuperer tout les prospects
 const getAllProspect = async (): Promise<TProspects[]> => {
   const {
     data: { user },
@@ -58,8 +58,75 @@ const getAllProspect = async (): Promise<TProspects[]> => {
   }
 
   return data ?? [];
-};
+}; */
 
+
+const getAllProspect = async (): Promise<TProspects[]> => {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    throw new Error("Utilisateur non authentifié");
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("type_commercial")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
+  const canViewAll = await hasPermission(
+    user.id,
+    "prospect.read.all"
+  );
+
+  let query = supabase
+    .from("prospects")
+    .select(`
+      *,
+      sites (
+        nom_titre
+      ),
+      profiles!prospects_created_by_fkey (
+        full_name,
+        professional_email
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  // Qualification selon le type de commercial connecté.
+  switch (profile.type_commercial) {
+    case "call_center":
+      query = query.in("qualification", ["H1", "H2", "H3"]);
+      break;
+
+    case "closing_visite":
+      query = query.in("qualification", ["H4", "H5"]);
+      break;
+
+    // Autres profils : aucun filtre de qualification.
+    default:
+      break;
+  }
+
+  if (!canViewAll) {
+    query = query.eq("created_by", user.id);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+};
 
 // Creer un prospect
 
