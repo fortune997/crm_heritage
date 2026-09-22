@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAcitvities, fetchActivityFollowUps, newActivities, updateActivity } from "../services/activites/activities-service";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchAcitvities, fetchAcitvitiesByID, fetchActivityFollowUps, newActivities, updateActivity } from "../services/activites/activities-service";
 import { toast } from "sonner";
 import { ProspectActivity } from "../types/activities";
 
@@ -98,8 +98,18 @@ const  useActivityFollowUps=() =>{
     });
 }
 
+const useProspectActivitiesByID = (id: string) => {
+    return useQuery({
+        queryKey: ["prospect_activities", id],
+        queryFn: () => fetchAcitvitiesByID(id),
+        placeholderData: keepPreviousData,
+
+    });
+};
+
 export {
   useCreateProspectActivity,
   useUpdateProspectActivity,
-  useActivityFollowUps
+  useActivityFollowUps,
+  useProspectActivitiesByID
 }
