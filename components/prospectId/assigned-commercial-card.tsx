@@ -1,4 +1,5 @@
 import { Customer360 } from "@/core/types/prospectId/Customer360";
+import { TProspects } from "@/core/types/prospects";
 import {
     Mail,
     MessageCircle,
@@ -9,13 +10,13 @@ import {
 
 
 interface Props {
-    customer: Customer360;
+    customer?: TProspects;
 }
 
 export function AssignedCommercialCard({
     customer,
 }: Props) {
-    const commercial = customer.commercial;
+
 
     return (
         <div className="rounded-xl border bg-card p-5">
@@ -32,27 +33,26 @@ export function AssignedCommercialCard({
             <div className="flex items-center gap-3">
                 <img
                     src={
-                        commercial.avatar ||
                         "https://i.pravatar.cc/100?img=47"
                     }
-                    alt={commercial.name}
+                    alt={customer?.full_name}
                     className="h-12 w-12 rounded-full object-cover"
                 />
 
                 <div>
                     <p className="font-semibold">
-                        {commercial.name}
+                        {customer?.profiles?.full_name}
                     </p>
 
-                    <p className="text-xs text-muted-foreground">
-                        {commercial.role}
-                    </p>
+                   {/*  <p className="text-xs text-muted-foreground">
+                        {customer.role}
+                    </p> */}
                 </div>
             </div>
 
             <div className="mt-4 flex gap-2">
                 <a
-                    href={`tel:${commercial.phone}`}
+                    href={`tel:${customer?.profiles?.phone}`}
                     className="flex h-9 flex-1 items-center justify-center gap-2 rounded-lg border text-sm hover:bg-muted"
                 >
                     <Phone className="h-4 w-4" />
@@ -60,7 +60,7 @@ export function AssignedCommercialCard({
                 </a>
 
                 <a
-                    href={`mailto:${commercial.email}`}
+                    href={`mailto:${customer?.profiles?.professinnal_email}`}
                     className="flex h-9 flex-1 items-center justify-center gap-2 rounded-lg border text-sm hover:bg-muted"
                 >
                     <Mail className="h-4 w-4" />

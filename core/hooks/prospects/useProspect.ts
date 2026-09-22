@@ -1,8 +1,13 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getAllProspect, updateProspect, searchProspectsByPhone, addProspect, deleteProspect } from "../../services/prospects/prospect-service";
+import { getAllProspect, updateProspect, searchProspectsByPhone, addProspect, deleteProspect, getProspectById } from "../../services/prospects/prospect-service";
 import { toast } from "sonner";
 import { TProspects } from "@/core/types/prospects";
+import { fetchAcitvitiesByID } from "@/core/services/activites/activities-service";
 
+export type PropectProps = {
+    data: TProspects,
+    count: number
+}
 
 const useAddProspect = () => {
     const queryClient = useQueryClient();
@@ -43,6 +48,7 @@ const useUpdateProspect = () => {
         }
     });
 };
+
 const  useDeleteProspect=() =>{
     const queryClient = useQueryClient();
 
@@ -63,11 +69,6 @@ const  useDeleteProspect=() =>{
             toast.error(error.message);
         },
     });
-}
-
-export type PropectProps = {
-    data: TProspects,
-    count: number
 }
 
 const useProspect = () => {
@@ -92,11 +93,22 @@ const useSearchProspects = (phone: string) => {
     });
 }
 
+const useProspectsById = (id: string) => {
+
+    return useQuery({
+        queryKey: ["prospects", id],
+        queryFn: () => getProspectById(id)
+    });
+}
+
+
+
 
 export {
     useProspect,
     useAddProspect,
     useSearchProspects,
     useUpdateProspect,
-    useDeleteProspect
+    useDeleteProspect,
+    useProspectsById
 };

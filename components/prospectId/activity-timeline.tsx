@@ -1,4 +1,5 @@
-import { Customer360 } from "@/core/types/prospectId/Customer360";
+import { ProspectActivity } from "@/core/types/activities";
+
 import {
     CalendarDays,
     CheckCircle2,
@@ -11,11 +12,11 @@ import {
 
 
 interface Props {
-    customer: Customer360;
+    activities?: ProspectActivity[];
 }
 
 export function ActivityTimeline({
-    customer,
+    activities,
 }: Props) {
     return (
         <div className="rounded-xl border bg-card p-5">
@@ -33,38 +34,46 @@ export function ActivityTimeline({
                 <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />
 
                 <div className="space-y-6">
-                    {customer.activities.map((activity) => (
-                        <div
-                            key={activity.id}
-                            className="relative flex gap-3"
-                        >
-                            <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background">
-                                <ActivityIcon type={activity.type} />
-                            </div>
+                   {activities?.length ? (
+    activities.map((activity) => (
+        <div key={activity.id} className="relative flex gap-3">
+            <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background">
+                <ActivityIcon type="call" />
+            </div>
 
-                            <div className="min-w-0 flex-1">
-                                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                                    <p className="text-sm font-semibold">
-                                        {activity.title}
-                                    </p>
+            <div className="min-w-0 flex-1">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm font-semibold">
+                        {activity.titre}
+                    </p>
 
-                                    <span className="text-[10px] text-muted-foreground">
-                                        {activity.date}
-                                    </span>
-                                </div>
+                    <span className="text-[10px] text-muted-foreground">
+                        {activity.created_at}
+                    </span>
+                </div>
 
-                                <p className="mt-1 text-xs text-muted-foreground">
-                                    {activity.author}
-                                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                    {activity.profiles?.full_name}
+                </p>
 
-                                {activity.description && (
-                                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                                        {activity.description}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    ))}
+                {activity.description && (
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                        {activity.description}
+                    </p>
+                )}
+            </div>
+        </div>
+    ))
+) : (
+    <div className="rounded-lg border border-dashed p-6 text-center">
+        <p className="text-sm font-medium">
+            Aucune activité enregistrée
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+            Les activités de ce prospect apparaîtront ici.
+        </p>
+    </div>
+)}
                 </div>
             </div>
 

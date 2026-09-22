@@ -369,9 +369,9 @@ useEffect(() => {
                                         <SelectContent>
                                             <SelectItem value="H1">H1 - Non Intéressé</SelectItem>
                                             <SelectItem value="H2">H2 - Besoins d'Infos</SelectItem>
-                                            <SelectItem value="H3">H3 - Non Intéressé</SelectItem>
+                                            <SelectItem value="H3">H3 - Intéressé</SelectItem>
                                             <SelectItem value="H4">H4 - Intentions RDV bureau</SelectItem>
-                                            <SelectItem value="H5">H5 - Effectuer Visite</SelectItem>
+                                            <SelectItem value="H5">H5 - Intentions RDV Terrain</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 )}

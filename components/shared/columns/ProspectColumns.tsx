@@ -53,27 +53,6 @@ export type ProspectPriority =
     | "moyenne"
     | "haute";
 
-
-// ============================================================
-// HELPERS
-// ============================================================
-
-function formatCurrency(value?: number) {
-    if (!value) return "Non défini";
-
-    return new Intl.NumberFormat("fr-FR", {
-        style: "currency",
-        currency: "XAF",
-        maximumFractionDigits: 0,
-    }).format(value);
-}
-
-
-// ============================================================
-// STATUS BADGE
-// ============================================================
-
-
 const statusConfig: Record<
     ProspectStatus,
     {
@@ -140,54 +119,12 @@ export function StatusBadge({
     return (
         <Badge
             variant="outline"
-            className={config.className}
+            className={config?.className}
         >
-            {config.label}
+            {config?.label}
         </Badge>
     );
 }
-
-
-// ============================================================
-// PRIORITY BADGE
-// ============================================================
-
-function PriorityBadge({
-    priority,
-}: {
-    priority: ProspectPriority;
-}) {
-    const labels: Record<ProspectPriority, string> = {
-        faible: "Faible",
-        moyenne: "Moyenne",
-        haute: "Haute",
-    };
-
-    const className: Record<ProspectPriority, string> = {
-        faible:
-            "border-border bg-muted text-muted-foreground",
-
-        moyenne:
-            "border-yellow-500/20 bg-yellow-500/10 text-yellow-700",
-
-        haute:
-            "border-red-500/20 bg-red-500/10 text-red-600",
-    };
-
-    return (
-        <Badge
-            variant="outline"
-            className={className[priority]}
-        >
-            {labels[priority]}
-        </Badge>
-    );
-}
-
-
-// ============================================================
-// PROSPECT COLUMNS
-// ============================================================
 
 export const getProspectColumns = (
     canViewAll: boolean

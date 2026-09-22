@@ -11,22 +11,30 @@ import { AssignedCommercialCard } from "../prospectId/assigned-commercial-card";
 import { ActivityTimeline } from "../prospectId/activity-timeline";
 import { ProposedLandCard } from "../prospectId/proposed-land-card";
 import { QuickActions } from "../prospectId/quick-actions";
+import { useProspectsById } from "@/core/hooks/prospects/useProspect";
+import { useVisitesByID } from "@/core/hooks/visites/useVisite";
+import { useProspectActivitiesByID } from "@/core/hooks/useActivities";
 
 
-export function Customer360Page() {
+
+export function Customer360Page( {id} :{ id: string}) {
     const customer = customer360Demo;
+
+    const { data: prospect } = useProspectsById(id)
+    const {data: prospectVisit} = useVisitesByID(id)
+    const {data: prospectActivities} = useProspectActivitiesByID(id)
 
     return (
         <div className="min-h-screen bg-muted/20 pb-20">
-            <div className="mx-auto max-w-[1800px] space-y-5 p-4 md:p-6 lg:p-4">
+            <div className="mx-auto max-w-450 space-y-5 p-4 md:p-6 lg:p-4">
                 {/* HEADER */}
                 <Customer360Header
-                    customer={customer}
+                    customer={prospect}
                 />
 
                 {/* PIPELINE */}
                 <Customer360Pipeline
-                    customer={customer}
+                    customer={prospect}
                 />
 
                 {/* MAIN GRID */}
@@ -36,29 +44,27 @@ export function Customer360Page() {
                         {/* OVERVIEW */}
                         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                             <PersonalInfoCard
-                                customer={customer}
+                                customer={prospect}
                             />
 
-
-
                             <CustomerSummaryCard
-                                customer={customer}
+                                customer={prospect}
                             />
                         </div>
 
                         {/* TRANSACTION */}
                         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                             <VisitsCard
-                                customer={customer}
+                                visits={prospectVisit}
                             />
 
-                            <PaymentsCard
+                          {/*   <PaymentsCard
                                 customer={customer}
                             />
 
                             <DocumentsCard
                                 customer={customer}
-                            />
+                            /> */}
                             <ProjectInfoCard
                                 customer={customer}
                             />
@@ -73,16 +79,16 @@ export function Customer360Page() {
                     {/* RIGHT SIDEBAR */}
                     <aside className="min-w-0 space-y-5">
                         <AssignedCommercialCard
-                            customer={customer}
+                            customer={prospect}
                         />
 
                         <ActivityTimeline
-                            customer={customer}
+                            activities={prospectActivities}
                         />
 
-                        <ProposedLandCard
+                        {/* <ProposedLandCard
                             customer={customer}
-                        />
+                        /> */}
                     </aside>
                 </div>
             </div>

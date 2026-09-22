@@ -1,4 +1,6 @@
+import { formatDate } from "@/core/lib/utils";
 import { Customer360 } from "@/core/types/prospectId/Customer360";
+import { TProspects } from "@/core/types/prospects";
 import {
     BriefcaseBusiness,
     Calendar,
@@ -12,64 +14,61 @@ import {
 
 
 interface Props {
-    customer: Customer360;
+    customer?: TProspects;
 }
 
 export function PersonalInfoCard({
     customer,
 }: Props) {
+     console.log('CUSTOMER DETAIL', customer)
+     if(!customer) return null
     const items = [
         {
             label: "Type",
             value:
-                customer.type === "prospect"
+                customer
                     ? "Prospect"
                     : "Client",
             icon: User,
         },
         {
             label: "Civilité",
-            value: customer.civility,
+            value: `${customer?.sexe === 'Homme'? 'Mr' : 'Mme' } `,
             icon: User,
         },
         {
             label: "Nom complet",
-            value: `${customer.firstName} ${customer.lastName}`,
+            value: `${customer?.full_name} `,
             icon: User,
         },
         {
             label: "Téléphone",
-            value: customer.phone,
+            value: customer?.phone,
             icon: Phone,
         },
         {
-            label: "Email",
-            value: customer.email,
-            icon: Mail,
-        },
-        {
             label: "Adresse",
-            value: customer.address,
+            value: "Douala",
             icon: MapPin,
         },
         {
             label: "Pièce d'identité",
-            value: customer.identityNumber,
+            value: 'Kit0000',
             icon: CreditCard,
         },
         {
             label: "Profession",
-            value: customer.profession,
+            value: 'Nom renseigné',
             icon: BriefcaseBusiness,
         },
         {
             label: "Source",
-            value: customer.source,
+            value: customer?.canal_prospection,
             icon: User,
         },
         {
             label: "Enregistré le",
-            value: customer.createdAt,
+            value: (new Date(customer?.created_at)),
             icon: Calendar,
         },
     ];
@@ -96,9 +95,9 @@ export function PersonalInfoCard({
                                 {item.label}
                             </span>
 
-                            <span className="font-medium break-words">
+                           {/*  <span className="font-medium break-words">
                                 {item.value || "—"}
-                            </span>
+                            </span> */}
                         </div>
                     );
                 })}

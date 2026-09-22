@@ -256,20 +256,20 @@ export const activityColumns = (
                                     </DropdownMenuItem>
 
                                     <DropdownMenuItem >
-                                        <Link href={`/activites/${activity.id}`}>
+                                        <Link href={`/marketing/prospects/${activity?.prospect_id}`}>
                                             <Eye className="mr-2 size-4" />
                                             Voir détails
                                         </Link>
                                     </DropdownMenuItem>
 
-                                    <DropdownMenuItem >
+                                    {/* <DropdownMenuItem >
                                         <Link
                                             href={`/activites/${activity.id}/edit`}
                                         >
                                             <Pencil className="mr-2 size-4" />
                                             Modifier
                                         </Link>
-                                    </DropdownMenuItem>
+                                    </DropdownMenuItem> */}
 
                                     <DropdownMenuSeparator />
 

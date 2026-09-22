@@ -81,10 +81,10 @@ const getAllProspect = async (): Promise<TProspects[]> => {
     throw new Error(profileError.message);
   }
 
-  const canViewAll = await hasPermission(
+/*   const canViewAll = await hasPermission(
     user.id,
     "prospect.read.all"
-  );
+  ); */
 
   let query = supabase
     .from("prospects")
@@ -101,23 +101,23 @@ const getAllProspect = async (): Promise<TProspects[]> => {
     .order("created_at", { ascending: false });
 
   // Qualification selon le type de commercial connecté.
-  switch (profile.type_commercial) {
-    case "call_center":
-      query = query.in("qualification", ["H1", "H2", "H3"]);
-      break;
+  /*   switch (profile.type_commercial) {
+      case "call_center":
+        query = query.in("qualification", ["H1", "H2", "H3"]);
+        break;
 
-    case "closing_visite":
-      query = query.in("qualification", ["H4", "H5"]);
-      break;
+      case "closing_visite":
+        query = query.in("qualification", ["H4", "H5"]);
+        break;
 
-    // Autres profils : aucun filtre de qualification.
-    default:
-      break;
-  }
+      // Autres profils : aucun filtre de qualification.
+      default:
+        break;
+    } */
 
-  if (!canViewAll) {
-    query = query.eq("created_by", user.id);
-  }
+  /*   if (!canViewAll) {
+      query = query.eq("created_by", user.id);
+    } */
 
   const { data, error } = await query;
 
@@ -126,6 +126,33 @@ const getAllProspect = async (): Promise<TProspects[]> => {
   }
 
   return data ?? [];
+};
+
+const getProspectById = async (id: string): Promise<TProspects> => {
+  const { data, error } = await supabase
+    .from("prospects")
+    .select(`
+      *,
+      sites (
+        nom_titre
+      ),
+      profiles!prospects_created_by_fkey (
+        full_name,
+        professional_email
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("Prospect introuvable");
+  }
+
+  return data;
 };
 
 // Creer un prospect
@@ -743,5 +770,5 @@ export {
   checkProspectPhone,
   addProspect,
   updateProspect,
-
+  getProspectById
 }

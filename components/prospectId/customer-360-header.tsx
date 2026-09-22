@@ -1,6 +1,7 @@
 "use client";
 
 import { Customer360 } from "@/core/types/prospectId/Customer360";
+import { TProspects } from "@/core/types/prospects";
 import {
     Calendar,
     ChevronDown,
@@ -11,11 +12,12 @@ import {
     Phone,
     Plus,
 } from "lucide-react";
+import { QualificationStatus } from "../status/QualificationStatus";
 
 
 
 interface Props {
-    customer: Customer360;
+    customer?: TProspects;
 }
 
 export function Customer360Header({
@@ -37,7 +39,7 @@ export function Customer360Header({
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">
                         <img
                             src="https://i.pravatar.cc/150?img=12"
-                            alt={customer.firstName}
+                            alt={customer?.full_name}
                             className="h-full w-full object-cover"
                         />
                     </div>
@@ -45,12 +47,11 @@ export function Customer360Header({
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                             <h1 className="truncate text-2xl font-bold tracking-tight">
-                                {customer.firstName}{" "}
-                                {customer.lastName}
+                                {customer?.full_name}
                             </h1>
 
                             <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                                {customer.type === "prospect"
+                                {customer
                                     ? "PROSPECT"
                                     : "CLIENT"}
                             </span>
@@ -58,24 +59,18 @@ export function Customer360Header({
 
                         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
                             <a
-                                href={`tel:${customer.phone}`}
+                                href={`tel:${customer?.phone}`}
                                 className="flex items-center gap-1.5 hover:text-primary"
                             >
                                 <Phone className="h-4 w-4" />
-                                {customer.phone}
+                                {customer?.phone}
                             </a>
 
-                            <a
-                                href={`mailto:${customer.email}`}
-                                className="flex items-center gap-1.5 hover:text-primary"
-                            >
-                                <Mail className="h-4 w-4" />
-                                {customer.email}
-                            </a>
+                          
 
                             <span className="flex items-center gap-1.5">
                                 <MapPin className="h-4 w-4" />
-                                {customer.city}
+                                Douala
                             </span>
                         </div>
                     </div>
@@ -83,13 +78,7 @@ export function Customer360Header({
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
-                    <button className="inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm font-medium hover:bg-muted">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="hidden sm:inline">
-                            Actions
-                        </span>
-                        <ChevronDown className="h-3 w-3" />
-                    </button>
+                    <QualificationStatus qualificationStatus={customer?.qualification} />
 
                     <button className="inline-flex h-9 items-center gap-2 rounded-lg border bg-background px-3 text-sm font-medium hover:bg-muted">
                         <Pencil className="h-4 w-4" />

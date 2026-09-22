@@ -23,7 +23,7 @@ export const fetchAcitvities = async () => {
     .from("prospect_activities")
     .select(`*, prospects(phone, full_name, canal_prospection, status, created_by), profiles(*) `)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(100);
 
   if (error) throw new Error(error.message);
   return data;
@@ -135,3 +135,15 @@ export async function fetchActivityFollowUps() {
 
     return data ?? [];
 }
+
+export const fetchAcitvitiesByID = async (id: string ) => {
+  const { data, error } = await supabase
+    .from("prospect_activities")
+    .select(`*, prospects(phone, full_name, canal_prospection, status, created_by), profiles(*) `)
+    .eq('prospect_id', id)
+    .order("created_at", { ascending: false })
+    
+
+  if (error) throw new Error(error.message);
+  return data;
+};

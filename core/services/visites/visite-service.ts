@@ -15,7 +15,6 @@ export const newVisite = async (formData: ScheduleVisitFormValues) => {
         .select()
         .single();
 
-
     if (error) {
         console.error("Erreur lors de la création du prospect :", error);
         throw error;
@@ -179,7 +178,6 @@ export const updateVisitAttendance = async({
     }
 }
 
-
 export type UpdateVisitStatusPayload =
     | {
         visitId: string;
@@ -251,3 +249,24 @@ export async function updateVisitStatus(
 
     return data;
 }
+
+export const fetchAllVisisteByID = async (id: string): Promise<Visit[]> => {
+    const { data, error } = await supabase
+        .from("visits")
+        .select(`
+      *,
+      prospects(*),
+      sites(*),
+      
+      profiles(*)
+      
+    `)
+    .eq('id', id)
+
+    if (error) {
+        console.error("Erreur récupération visites :", error);
+        throw error;
+    }
+
+    return data as Visit[];
+};

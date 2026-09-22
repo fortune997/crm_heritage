@@ -1,5 +1,5 @@
 import supabase from "@/core/lib/supabase";
-import { UpdateVisitReport, UpdateVisitStatusPayload, assignedTopographe, fetchAllVisiste, fetchCommercialVisiste, fetchConfirmedVisits, newVisite, updateVisitAttendance, updateVisitReport, updateVisitStatus } from "@/core/services/visites/visite-service";
+import { UpdateVisitReport, UpdateVisitStatusPayload, assignedTopographe, fetchAllVisiste, fetchAllVisisteByID, fetchCommercialVisiste, fetchConfirmedVisits, newVisite, updateVisitAttendance, updateVisitReport, updateVisitStatus } from "@/core/services/visites/visite-service";
 import { Visit } from "@/core/types/visites/type";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -46,6 +46,14 @@ const useMyVisites = (id: string) => {
     return useQuery<Visit[], Error>({
         queryKey: ["visites", id],
         queryFn: () => fetchCommercialVisiste(id)
+
+    });
+};
+
+const useVisitesByID = (id: string) => {
+    return useQuery<Visit[], Error>({
+        queryKey: ["visites", id],
+        queryFn: () => fetchAllVisisteByID(id)
 
     });
 };
@@ -237,5 +245,6 @@ export {
     useMyVisites,
     useUpdateVisitStatus,
     useConfirmedVisits,
-    useConfirmVisit
+    useConfirmVisit,
+    useVisitesByID
 }

@@ -1,4 +1,6 @@
-import { Customer360 } from "@/core/types/prospectId/Customer360";
+'use client'
+
+import { TProspects } from "@/core/types/prospects";
 import {
     CalendarClock,
     Flag,
@@ -9,12 +11,13 @@ import {
 
 
 interface Props {
-    customer: Customer360;
+    customer?: TProspects;
 }
 
 export function CustomerSummaryCard({
     customer,
 }: Props) {
+   
     return (
         <div className="rounded-xl border bg-card p-5">
             <h2 className="mb-5 flex items-center gap-2 font-semibold">
@@ -23,19 +26,19 @@ export function CustomerSummaryCard({
             </h2>
 
             <div className="space-y-5 text-sm">
-                <Item
+                {/* <Item
                     label="Étape actuelle"
                     value={customer.currentStage}
                     className="bg-blue-50 text-blue-700"
-                />
+                /> */}
 
                 <Item
                     label="Statut"
-                    value={customer.currentStatus}
+                    value={customer?.status}
                     className="bg-amber-50 text-amber-700"
                 />
 
-                <Item
+               {/*  <Item
                     label="Intérêt"
                     value={customer.interest}
                     className="bg-emerald-50 text-emerald-700"
@@ -49,7 +52,7 @@ export function CustomerSummaryCard({
                     <p className="font-semibold text-purple-600">
                         {customer.nextAction}
                     </p>
-                </div>
+                </div> */}
 
                 <div>
                     <p className="mb-1 flex items-center gap-2 text-muted-foreground">
@@ -57,9 +60,9 @@ export function CustomerSummaryCard({
                         Date prochaine action
                     </p>
 
-                    <p className="font-medium">
+                   {/*  <p className="font-medium">
                         {customer.nextActionDate}
-                    </p>
+                    </p> */}
                 </div>
 
                 <div>
