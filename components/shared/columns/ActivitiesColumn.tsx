@@ -30,6 +30,7 @@ import {
     DropdownMenuItem,
     DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { truncateText } from "@/core/lib/utils";
 
 function formatDate(value?: string | null) {
     if (!value) return "Non défini";
@@ -97,7 +98,7 @@ export const activityColumns = (
     canViewAll: boolean
 ): ColumnDef<ProspectActivity>[] => [
         {
-            accessorKey: "title",
+            accessorKey: "activity",
             header: ({ column }) => (
                 <Button
                     variant="ghost"
@@ -113,16 +114,16 @@ export const activityColumns = (
 
                 return (
                     <div className="space-y-1">
-                        <div className="font-medium text-foreground">{activity.titre}</div>
+                        <div className="font-medium text-foreground">{truncateText(activity.titre)}</div>
                         <div className="line-clamp-1 text-xs text-muted-foreground">
-                            {activity.description ?? "Aucune description"}
+                            {truncateText(activity.description) ?? "Aucune description"}
                         </div>
                     </div>
                 );
             },
         },
         {
-            accessorKey: "targetName",
+            accessorKey: "prospect",
             header: "Client / Prospect",
             cell: ({ row }) => {
                 const activity = row.original;
@@ -160,7 +161,7 @@ export const activityColumns = (
             cell: ({ row }) => <StatusBadge status={row.original.prospects?.status} />,
         },
         {
-            accessorKey: "dueDate",
+            accessorKey: "echeance",
             header: "Échéance",
             cell: ({ row }) => {
                 const activity = row.original;

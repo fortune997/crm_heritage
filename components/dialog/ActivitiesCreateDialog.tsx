@@ -299,7 +299,7 @@ export function ActivityCreateDialog(
                                                 <SelectItem value="Email">📧 Email</SelectItem>
                                                 <SelectItem value="Visite">🏠 Visite</SelectItem>
                                                 <SelectItem value="Réunion">🤝 Réunion</SelectItem>
-                                                <SelectItem value="Relance">🔄 Relance</SelectItem>
+                                                
                                                 <SelectItem value="Autre">📌 Autre</SelectItem>
                                             </SelectContent>
                                         </Select>
@@ -330,17 +330,8 @@ export function ActivityCreateDialog(
                                                 <SelectItem value="A faire">
                                                     ⏳ À faire
                                                 </SelectItem>
-
-                                                <SelectItem value="En cours">
-                                                    🚀 En cours
-                                                </SelectItem>
-
                                                 <SelectItem value="Terminée">
                                                     ✅ Terminée
-                                                </SelectItem>
-
-                                                <SelectItem value="Annulée">
-                                                    ❌ Annulée
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>

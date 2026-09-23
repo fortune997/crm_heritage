@@ -349,11 +349,20 @@ export function ScheduleVisitDialog({
                                                 </option>
 
                                                 <option value="Carrefour_logbaba">
-                                                   Carrefour Logbaba
+                                                   Bomono Gare
                                                 </option>
 
                                                  <option value="Nyalla_pariso">
-                                                   Nyalla pariso
+                                                   Total Nkolbong
+                                                </option>
+                                                 <option value="Nyalla_pariso">
+                                                   Neptune PK14
+                                                </option>
+                                                <option value="Nyalla_pariso">
+                                                   Rond Point Deido
+                                                </option>
+                                                <option value="Nyalla_pariso">
+                                                   Carrefour TILO
                                                 </option>
                                             </select>
                                         </div>
