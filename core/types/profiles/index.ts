@@ -23,4 +23,5 @@ export type HeritageUser = {
     updated_at: string;
     department: string;
     fcm_token: string | null;
+    type_commercial: string
 };
