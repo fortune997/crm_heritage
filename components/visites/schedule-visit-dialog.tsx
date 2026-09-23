@@ -62,7 +62,6 @@ export function ScheduleVisitDialog({
             start_time: "10:00",
 
             location: "",
-            purpose: "",
             notes: ""
 
         },
@@ -82,9 +81,6 @@ export function ScheduleVisitDialog({
             created_by: userId,
         };
 
-        console.log("values :", values);
-        console.log("userId :", userId);
-        console.log("newVisit :", newVisit);
 
         try {
             await createVisite(newVisit);
@@ -150,7 +146,7 @@ export function ScheduleVisitDialog({
                         className="flex min-h-0 flex-1 flex-col"
                     >
                         <div className="flex-1 overflow-y-auto px-4 py-5 md:px-6">
-                            <div className="space-y-6">
+                            <div className="space-y-6 w-full">
                                 {/* Client */}
                                 <section className="w-full">
                                     <Label className="mb-3 flex items-center gap-2">
@@ -367,19 +363,7 @@ export function ScheduleVisitDialog({
                                             </select>
                                         </div>
 
-                                        <div>
-                                            <label className="mb-1.5 block text-sm font-medium">
-                                                Objet de la visite
-                                            </label>
-
-                                            <input
-                                                {...register(
-                                                    "purpose"
-                                                )}
-                                                placeholder="Ex : Présentation du terrain et vérification de l'emplacement"
-                                                className="h-11 w-full rounded-lg border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-                                            />
-                                        </div>
+                                     
 
                                         <div>
                                             <label className="mb-1.5 block text-sm font-medium">
