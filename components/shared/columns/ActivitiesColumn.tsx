@@ -97,6 +97,23 @@ function PriorityBadge({ priority }: { priority: string }) {
 export const activityColumns = (
     canViewAll: boolean
 ): ColumnDef<ProspectActivity>[] => [
+    {
+            accessorKey: "prospect",
+            header: "Client / Prospect",
+            cell: ({ row }) => {
+                const activity = row.original;
+
+                return (
+                    <div>
+                        <div className="font-medium">{activity.prospects?.full_name}</div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Phone className="size-3" />
+                            {activity.prospects?.phone ?? "Téléphone non renseigné"}
+                        </div>
+                    </div>
+                );
+            },
+        },
         {
             accessorKey: "activity",
             header: ({ column }) => (
@@ -122,19 +139,19 @@ export const activityColumns = (
                 );
             },
         },
-        {
-            accessorKey: "prospect",
-            header: "Client / Prospect",
+         {
+            accessorKey: "echeance",
+            header: "Date RDV",
             cell: ({ row }) => {
                 const activity = row.original;
 
                 return (
-                    <div>
-                        <div className="font-medium">{activity.prospects?.full_name}</div>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Phone className="size-3" />
-                            {activity.prospects?.phone ?? "Téléphone non renseigné"}
-                        </div>
+                    <div className="flex items-center gap-2 text-sm">
+                       
+                        <span>
+                            {formatDate(activity.prochain_relance)}
+
+                        </span>
                     </div>
                 );
             },
@@ -160,23 +177,7 @@ export const activityColumns = (
             header: "Statut",
             cell: ({ row }) => <StatusBadge status={row.original.prospects?.status} />,
         },
-        {
-            accessorKey: "echeance",
-            header: "Échéance",
-            cell: ({ row }) => {
-                const activity = row.original;
-
-                return (
-                    <div className="flex items-center gap-2 text-sm">
-                        <CalendarClock className="size-4 text-muted-foreground" />
-                        <span>
-                            {formatDate(activity.prochain_relance)}
-
-                        </span>
-                    </div>
-                );
-            },
-        },
+       
         ...(canViewAll
             ? [
                 {

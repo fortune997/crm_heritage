@@ -29,7 +29,7 @@ import {
 import { VisitStatusDialog } from "@/components/visites/modale/visit-status-dialog";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMyVisites } from "@/core/hooks/visites/useVisite";
+import { useVisites } from "@/core/hooks/visites/useVisite";
 
 type ActiveTab = "today" | "reports" | "history";
 type VisitAction = "confirm" | "postpone";
@@ -44,7 +44,7 @@ const EMPTY_FILTERS: VisitFilters = {
 export default function CommercialVisitsPage() {
     const router = useRouter();
     const { profile } = useAuth();
-    const { data: visitsData = [] } = useMyVisites(profile?.id ?? "");
+    const { data: visitsData = [] } = useVisites();
 
     const now = useMemo(() => new Date(), []);
     const today = toLocalDateKey(now);

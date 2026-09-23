@@ -29,11 +29,6 @@ export const scheduleVisitSchema = z.object({
         .max(500)
         .optional(),
 
-    purpose: z
-        .string()
-        .max(500)
-        .optional(),
-
     notes: z
         .string()
         .max(2000)

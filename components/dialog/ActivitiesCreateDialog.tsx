@@ -262,14 +262,120 @@ export function ActivityCreateDialog(
                                     name="titre"
                                     control={control}
                                     render={({ field }) => (
-                                        <Input
-
+                                         <Select
                                             value={field.value}
-                                            placeholder="Ex : Relancer le client pour la visite"
-                                            onChange={(e) =>
-                                                field.onChange((e.target.value))
-                                            }
-                                        />
+                                            onValueChange={field.onChange}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Choisir un titre" />
+                                            </SelectTrigger>
+
+                                                    <SelectContent>
+                <SelectItem value="Prise de contact">
+                    Prise de contact
+                </SelectItem>
+                <SelectItem value="Nouvelle tentative de contact">
+                    Nouvelle tentative de contact
+                </SelectItem>
+                <SelectItem value="Rappel demandé par le prospect">
+                    Rappel demandé par le prospect
+                </SelectItem>
+                <SelectItem value="Confirmation du besoin">
+                    Confirmation du besoin
+                </SelectItem>
+                <SelectItem value="Précision du budget">
+                    Précision du budget
+                </SelectItem>
+                <SelectItem value="Confirmation du projet d’achat">
+                    Confirmation du projet d’achat
+                </SelectItem>
+                <SelectItem value="Présentation des terrains disponibles">
+                    Présentation des terrains disponibles
+                </SelectItem>
+                <SelectItem value="Envoi des informations du site">
+                    Envoi des informations du site
+                </SelectItem>
+               
+                <SelectItem value="Proposition de visite">
+                    Proposition de visite
+                </SelectItem>
+                <SelectItem value="Confirmation du rendez-vous">
+                    Confirmation du rendez-vous
+                </SelectItem>
+                <SelectItem value="Rappel avant la visite">
+                    Rappel avant la visite
+                </SelectItem>
+                <SelectItem value="Reprogrammation de la visite">
+                    Reprogrammation de la visite
+                </SelectItem>
+                <SelectItem value="Relance après absence">
+                    Relance après absence
+                </SelectItem>
+                <SelectItem value="Recueil des impressions après visite">
+                    Recueil des impressions après visite
+                </SelectItem>
+                <SelectItem value="Confirmation de l’intérêt">
+                    Confirmation de l’intérêt
+                </SelectItem>
+                <SelectItem value="Réponse aux objections">
+                    Réponse aux objections
+                </SelectItem>
+                <SelectItem value="Suivi de la proposition commerciale">
+                    Suivi de la proposition commerciale
+                </SelectItem>
+                <SelectItem value="Discussion des modalités de paiement">
+                    Discussion des modalités de paiement
+                </SelectItem>
+                <SelectItem value="Relance pour décision">
+                    Relance pour décision
+                </SelectItem>
+                <SelectItem value="Confirmation du lot choisi">
+                    Confirmation du lot choisi
+                </SelectItem>
+                <SelectItem value="Suivi de la réservation">
+                    Suivi de la réservation
+                </SelectItem>
+                <SelectItem value="Rappel de fin de réservation">
+                    Rappel de fin de réservation
+                </SelectItem>
+                <SelectItem value="Suivi du premier versement">
+                    Suivi du premier versement
+                </SelectItem>
+                <SelectItem value="Rappel d’échéance">
+                    Rappel d’échéance
+                </SelectItem>
+                <SelectItem value="Relance pour paiement en retard">
+                    Relance pour paiement en retard
+                </SelectItem>
+                <SelectItem value="Confirmation de paiement">
+                    Confirmation de paiement
+                </SelectItem>
+                <SelectItem value="Demande de pièces manquantes">
+                    Demande de pièces manquantes
+                </SelectItem>
+                <SelectItem value="Suivi de signature">
+                    Suivi de signature
+                </SelectItem>
+                <SelectItem value="Suivi du bornage">
+                    Suivi du bornage
+                </SelectItem>
+                <SelectItem value="Suivi de remise des documents">
+                    Suivi de remise des documents
+                </SelectItem>
+                <SelectItem value="Reprise de contact">
+                    Reprise de contact
+                </SelectItem>
+                <SelectItem value="Présentation d’une nouvelle offre">
+                    Présentation d’une nouvelle offre
+                </SelectItem>
+                <SelectItem value="Relance d’un projet reporté">
+                    Relance d’un projet reporté
+                </SelectItem>
+                <SelectItem value="Autre">
+                    Autre
+                </SelectItem>
+            </SelectContent>
+                                        </Select>
                                     )}
                                 />
                                 {getError("titre") && (
@@ -392,7 +498,7 @@ export function ActivityCreateDialog(
                                         <SelectContent>
                                             <SelectItem value="H1">H1 - Non Intéressé</SelectItem>
                                             <SelectItem value="H2">H2 - Besoins d'Infos</SelectItem>
-                                            <SelectItem value="H3">H3 - Non Intéressé</SelectItem>
+                                            <SelectItem value="H3">H3 - Intéressé</SelectItem>
                                             <SelectItem value="H4">H4 - Intentions RDV bureau</SelectItem>
                                             <SelectItem value="H5">H5 - Effectuer Visite</SelectItem>
                                         </SelectContent>

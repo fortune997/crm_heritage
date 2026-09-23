@@ -22,6 +22,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePermission } from "@/core/hooks/admin/usePermission";
 import { ProspectTableSkeleton } from "@/components/cards/ProspectTableSkeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 
@@ -30,9 +31,9 @@ export default function ActivitiesPage() {
     const { data: allActivities = [], isLoading } = useAcitivities()
     const router = useRouter()
     const {
-    data: followUps = [],
-    isLoading: isFollowUpsLoading,
+    data: followUps = []
 } = useActivityFollowUps();
+const { profile } = useAuth()
 
     const {
         data: canViewAll = true,
@@ -108,7 +109,7 @@ export default function ActivitiesPage() {
                 </div>
 
                 <div className="flex gap-4 items-center ">
-                    <button
+                     { profile?.type_commercial !== 'call_center' ? <button
                         onClick={() => setScheduleDialogOpen(true)}
                         className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
                     >
@@ -117,9 +118,9 @@ export default function ActivitiesPage() {
                         <span className="hidden sm:inline">
                             Planifier une visite
                         </span>
-                    </button>
+                    </button>: ""}
                     <ActivityCreateDialog />
-                    <button
+                    { profile?.type_commercial !== 'call_center' ? <button
                         onClick={() => router.push('/marketing/activities/mes_visites')}
                         className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
                     >
@@ -128,6 +129,7 @@ export default function ActivitiesPage() {
                             Mes Visites
                         </span>
                     </button>
+                    : ""}
                 </div>
 
             </div>
