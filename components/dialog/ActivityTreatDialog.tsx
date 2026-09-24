@@ -1,4 +1,5 @@
-"use client";
+
+        "use client";
 
 
 import { CheckCircle2 } from "lucide-react";
@@ -26,7 +27,7 @@ import {
 } from "@/components/ui/select";
 
 import { ProspectActivity } from "@/core/types/activities";
-import { useCreateProspectActivity, useUpdateProspectActivity } from "@/core/hooks/useActivities";
+import { useCreateProspectActivity, useUpdateProspectActivity, useUpdateProspectActivityStatus } from "@/core/hooks/useActivities";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { ActivityFollowUp } from "@/core/services/activites/activities-service";
@@ -36,8 +37,7 @@ type ActivityTreatDialogProps = {
 };
 
 type ActivityResult =
-    | "appel_reussi"
-    | "pas_de_reponse"
+    "pas_de_reponse"
     | "interesse"
     | "non_interesse"
     | "rendez_vous_confirme"
@@ -46,77 +46,24 @@ type ActivityResult =
     | "a_relancer"
     | "autre";
 
-type NextAction =
-    | "aucune"
-    | "relance"
-    | "visite"
-    | "rendez_vous"
-    | "paiement"
-    | "appel"
-    | "whatsapp";
+
 
 export function ActivityTreatDialog({ activity }: ActivityTreatDialogProps) {
     const [open, setOpen] = useState(false);
-
-    const [result, setResult] = useState<ActivityResult>("appel_reussi");
+const { profile } = useAuth();
+    const [result, setResult] = useState("");
     const [resultNote, setResultNote] = useState("");
-    const [nextAction, setNextAction] = useState("aucune");
-    const [nextActionDate, setNextActionDate] = useState("");
-    const [nextActionTime, setNextActionTime] = useState("");
-    const [nextActionTitle, setNextActionTitle] = useState("");
 
-    const shouldCreateNextAction = nextAction !== "aucune";
-
-    const { mutate: updateActivity, isPending: isUpdating } = useUpdateProspectActivity();
-    const { mutate: createActivity, isPending: isCreating } = useCreateProspectActivity();
-
-    const { profile } = useAuth()
+    const { mutate: updateActivity,  } = useUpdateProspectActivityStatus();
 
 
     const handleSubmit = () => {
-        const userId = profile?.id;
+console.log("ID activité à modifier :", activity.id);
+console.log('DATA', {id:activity.id, statut_activite: 'Terminée', description:result})
+       const res = updateActivity( {id:activity.id, statut_activite: 'Terminée', description:resultNote} )
 
-        if (!userId) {
-            console.error("Profil utilisateur introuvable");
-            return;
-        }
-
-        updateActivity(
-            {
-                id: activity.id,
-                statut_activite: "Terminée",
-            },
-            {
-                onSuccess: () => {
-                    if (shouldCreateNextAction) {
-                        const prochainRelance =
-                            nextActionDate && nextActionTime
-                                ? new Date(`${nextActionDate}T${nextActionTime}`)
-                                : nextActionDate
-                                    ? new Date(nextActionDate)
-                                    : new Date();
-
-                        createActivity(
-
-                            {
-                                prospect_id: activity.prospect_id,
-                                titre: nextActionTitle,
-                                description: resultNote,
-                                canal_relance: result,
-                                statut_activite: "A faire",
-                                prochain_relance: prochainRelance,
-                                created_by: userId,
-                            },
-                            {
-                                onSuccess: () => setOpen(false),
-                            }
-                        );
-                    } else {
-                        setOpen(false);
-                    }
-                },
-            }
-        );
+            console.log('res', res)
+        
     };
 
     return (
@@ -140,7 +87,7 @@ export function ActivityTreatDialog({ activity }: ActivityTreatDialogProps) {
                 <div className="flex-1 overflow-y-auto space-y-4 px-6 py-4">
                     <div className="rounded-lg border bg-muted/40 p-4">
                         <p className="text-sm text-muted-foreground">Concernant</p>
-                        <p className="font-medium">{activity.prospect_name}</p>
+                        <p className="font-medium">{activity.prospects?.full_name}</p>
 
                         <p className="mt-2 text-sm text-muted-foreground">Activité</p>
                         <p className="font-medium">{activity.titre}</p>
@@ -173,71 +120,7 @@ export function ActivityTreatDialog({ activity }: ActivityTreatDialogProps) {
                             </Select>
                         </div>
 
-                        {/* Prochaine action */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">
-                                Prochaine action
-                            </label>
-
-                            <Select
-                                value={nextAction}
-                                onValueChange={(value) => setNextAction(value as NextAction)}
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Programmer une action" />
-                                </SelectTrigger>
-
-                                <SelectContent>
-                                    <SelectItem value="aucune">
-                                        Aucune
-                                    </SelectItem>
-
-                                    <SelectItem value="appel">
-                                        📞 Programmer un appel
-                                    </SelectItem>
-
-                                    <SelectItem value="whatsapp">
-                                        💬 Envoyer un WhatsApp
-                                    </SelectItem>
-
-                                    <SelectItem value="sms">
-                                        📩 Envoyer un SMS
-                                    </SelectItem>
-
-                                    <SelectItem value="email">
-                                        ✉️ Envoyer un Email
-                                    </SelectItem>
-
-                                    <SelectItem value="relance">
-                                        🔄 Créer une relance
-                                    </SelectItem>
-
-                                    <SelectItem value="visite">
-                                        📍 Planifier une visite
-                                    </SelectItem>
-
-                                    <SelectItem value="reunion">
-                                        🤝 Planifier une réunion
-                                    </SelectItem>
-
-                                    <SelectItem value="paiement">
-                                        💰 Suivi de paiement
-                                    </SelectItem>
-
-                                    <SelectItem value="signature">
-                                        🖊️ Signature du contrat
-                                    </SelectItem>
-
-                                    <SelectItem value="reservation">
-                                        📑 Réservation
-                                    </SelectItem>
-
-                                    <SelectItem value="autre">
-                                        📝 Autre
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                       
                     </div>
                     <div className="grid gap-2">
                         <label className="text-sm font-medium">Note de traitement</label>
@@ -252,41 +135,7 @@ export function ActivityTreatDialog({ activity }: ActivityTreatDialogProps) {
 
 
 
-                    {shouldCreateNextAction && (
-                        <div className="grid gap-4 rounded-lg border p-4 md:grid-cols-2">
-                            <div className="grid gap-2 md:col-span-2">
-                                <label className="text-sm font-medium">
-                                    Titre de la prochaine action
-                                </label>
-
-                                <Input
-                                    placeholder="Ex : Envoyer la localisation WhatsApp"
-                                    value={nextActionTitle}
-                                    onChange={(event) => setNextActionTitle(event.target.value)}
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <label className="text-sm font-medium">Date</label>
-
-                                <Input
-                                    type="date"
-                                    value={nextActionDate}
-                                    onChange={(event) => setNextActionDate(event.target.value)}
-                                />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <label className="text-sm font-medium">Heure</label>
-
-                                <Input
-                                    type="time"
-                                    value={nextActionTime}
-                                    onChange={(event) => setNextActionTime(event.target.value)}
-                                />
-                            </div>
-                        </div>
-                    )}
+                   
                 </div>
 
                 <DialogFooter className="px-6 pb-6">
@@ -299,3 +148,4 @@ export function ActivityTreatDialog({ activity }: ActivityTreatDialogProps) {
         </Dialog>
     );
 }
+    
