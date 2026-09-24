@@ -15,7 +15,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { ScheduleVisitDialog } from "@/components/visites/schedule-visit-dialog";
-import { useAcitivities, useActivityFollowUps } from "@/core/hooks/useActivities";
+import { useAcitivities, useAcitivitiesFollowUp, useActivityFollowUps } from "@/core/hooks/useActivities";
 import { Activity } from "@/types";
 import { CalendarPlus, EyeIcon } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -40,18 +40,8 @@ export default function ActivitiesPage() {
 const { profile, loading } = useAuth();
 
 const {
-  data: activities = [],
- 
-  error,
-} = useQuery({
-  queryKey: [
-    "prospect-activities",
-    profile?.id,
-    profile?.type_commercial,
-  ],
-  queryFn: () => fetchAcitvitiesProgramme(profile!.type_commercial),
-  
-});
+  data: activities = []
+} = useAcitivitiesFollowUp(profile?.id!, profile?.type_commercial!)
 
     const {
         data: canViewAll = true,
@@ -64,49 +54,72 @@ const {
     );
 
     const activityStats = useMemo(() => {
-        const now = new Date();
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
 
-        const startOfToday = new Date(now);
-        startOfToday.setHours(0, 0, 0, 0);
+    const startOfTomorrow = new Date(startOfToday);
+    startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
 
-        const endOfToday = new Date(now);
-        endOfToday.setHours(23, 59, 59, 999);
+    const todayStart = startOfToday.getTime();
+    const tomorrowStart = startOfTomorrow.getTime();
 
-        const todayCount = allActivities.filter((activity) => {
-            const date = new Date(activity.scheduled_at);
+    const stats = {
+        todayCount: 0,
+        overdueCount: 0,
+        upcomingCount: 0,
+        completedCount: 0,
+        completedTodayCount: 0,
+    };
 
-            return date >= startOfToday && date <= endOfToday;
-        }).length;
+    for (const activity of allActivities) {
+        const status = activity.statut_activite;
 
-        const overdueCount = allActivities.filter((activity) => {
-            const date = new Date(activity.scheduled_at);
+        // Toutes les activités terminées + celles terminées aujourd'hui.
+        if (status === "Terminée") {
+            stats.completedCount += 1;
 
-            return date < startOfToday && activity.status !== "completed";
-        }).length;
+            const completedAt = activity.completed_at
+                ? new Date(activity.completed_at).getTime()
+                : NaN;
 
-        const upcomingCount = allActivities.filter((activity) => {
-            const date = new Date(activity.scheduled_at);
+            if (
+                completedAt >= todayStart &&
+                completedAt < tomorrowStart
+            ) {
+                stats.completedTodayCount += 1;
+            }
 
-            return date > endOfToday && activity.status !== "completed";
-        }).length;
+            continue;
+        }
 
-        const completedTodayCount = allActivities.filter((activity) => {
-            const date = new Date(activity.completed_at ?? "");
+        // Seules les activités à faire ou en cours restent à traiter.
+        if (status !== "A faire" && status !== "En cours") {
+            continue;
+        }
 
-            return (
-                activity.status === "completed" &&
-                date >= startOfToday &&
-                date <= endOfToday
-            );
-        }).length;
+        if (!activity.prochain_relance) {
+            continue;
+        }
 
-        return {
-            todayCount,
-            overdueCount,
-            upcomingCount,
-            completedTodayCount,
-        };
-    }, [allActivities]);
+        const scheduledAt = new Date(
+            activity.prochain_relance
+        ).getTime();
+
+        if (!Number.isFinite(scheduledAt)) {
+            continue;
+        }
+
+        if (scheduledAt < todayStart) {
+            stats.overdueCount += 1;
+        } else if (scheduledAt < tomorrowStart) {
+            stats.todayCount += 1;
+        } else {
+            stats.upcomingCount += 1;
+        }
+    }
+
+    return stats;
+}, [allActivities]);
 
     if (isLoading) {
         return <ActivitiesPageSkeleton />;
