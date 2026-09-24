@@ -1,5 +1,6 @@
 import { ActivitiesFormValues } from "@/lib/validations/schema";
 import supabase from "../../lib/supabase";
+import { TProspects } from "@/core/types/prospects";
 
 export interface newActivityProps {
   userId: string;
@@ -27,6 +28,58 @@ export const fetchAcitvities = async () => {
 
   if (error) throw new Error(error.message);
   return data;
+};
+
+type TypeCommercial = "call_center" | "closing_visite";
+
+export const fetchAcitvitiesProgramme = async (
+  typeCommercial: string | null | undefined
+) => {
+  const today = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Africa/Douala",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  const startOfDay = new Date(`${today}T00:00:00+01:00`);
+
+  const startOfNextDay = new Date(startOfDay);
+  startOfNextDay.setUTCDate(startOfNextDay.getUTCDate() + 1);
+
+  let query = supabase
+    .from("prospect_activities")
+    .select(`
+      *,
+      prospects!inner(
+        phone,
+        full_name,
+        canal_prospection,
+        status,
+        created_by,
+        qualification
+      ),
+      profiles(*)
+    `)
+    .or(
+      `and(prochain_relance.gte.${startOfDay.toISOString()},prochain_relance.lt.${startOfNextDay.toISOString()}),statut_activite.eq."A faire"`
+    );
+
+  if (typeCommercial === "call_center") {
+    query = query.in("prospects.qualification", ["H1", "H2", "H3"]);
+  } else if (typeCommercial === "closing_visite") {
+    query = query.in("prospects.qualification", ["H4", "H5"]);
+  }
+
+  const { data, error } = await query
+    .order("prochain_relance", {
+      ascending: true,
+      nullsFirst: false,
+    });
+
+  if (error) throw new Error(error.message);
+
+  return data ?? [];
 };
 
 export const newActivities = async (
@@ -115,6 +168,7 @@ export type ActivityFollowUp = {
     prospect_phone: string | null;
     prospect_status: string | null;
     created_by_name: string | null;
+    prospects?: TProspects;
 
     follow_up_state: FollowUpState;
 };

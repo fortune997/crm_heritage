@@ -16,7 +16,7 @@ export function CommercialVisitStats({
     weekReportsCount,
 }: CommercialVisitStatsProps) {
     return (
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <StatVisitCard
                 icon={<CalendarDays className="h-5 w-5" />}
                 label="Visites du jour"

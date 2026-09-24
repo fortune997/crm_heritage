@@ -4,9 +4,7 @@
 import ReadValue from "@/components/rapport/ReadValue";
 import { VisitAttendanceDialog } from "@/components/visites/modale/VisitAttendanceDialog";
 import { useUsersCommercial, useUsersTopographique } from "@/core/hooks/admin/useUsers";
-import { useAssignTopo, useConfirmedVisits, useUpdateVisitReport, useVisites } from "@/core/hooks/visites/useVisite";
-import { formatDate } from "@/core/lib/utils";
-import { HeritageUser } from "@/core/types/profiles";
+import { useAssignTopo, useConfirmedVisits, useUpdateVisitReport } from "@/core/hooks/visites/useVisite";
 import { Visit } from "@/core/types/visites/type";
 import {CalendarDays,Check,
     ChevronDown,
@@ -42,13 +40,6 @@ export type InterestLevel =
     | "Intéressé"
     | "Peu intéressé"
     | "Pas intéressé";
-
-type ReportStatus = "Complété" | "À compléter";
-
-
-
-
-
 
 
 function formatCurrency(value: number | "") {

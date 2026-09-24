@@ -23,6 +23,8 @@ import { useRouter } from "next/navigation";
 import { usePermission } from "@/core/hooks/admin/usePermission";
 import { ProspectTableSkeleton } from "@/components/cards/ProspectTableSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { fetchAcitvitiesProgramme } from "@/core/services/activites/activities-service";
+import { useQuery } from "@tanstack/react-query";
 
 
 
@@ -33,7 +35,23 @@ export default function ActivitiesPage() {
     const {
     data: followUps = []
 } = useActivityFollowUps();
-const { profile } = useAuth()
+
+
+const { profile, loading } = useAuth();
+
+const {
+  data: activities = [],
+ 
+  error,
+} = useQuery({
+  queryKey: [
+    "prospect-activities",
+    profile?.id,
+    profile?.type_commercial,
+  ],
+  queryFn: () => fetchAcitvitiesProgramme(profile!.type_commercial),
+  
+});
 
     const {
         data: canViewAll = true,
@@ -142,7 +160,7 @@ const { profile } = useAuth()
             />
 
            <ActivityFollowUpBoard
-    activities={followUps}
+    activities={activities}
 />
             <Card>
                 <CardHeader>

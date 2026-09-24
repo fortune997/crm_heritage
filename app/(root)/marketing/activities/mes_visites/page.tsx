@@ -169,11 +169,8 @@ export default function CommercialVisitsPage() {
                                 <StepBack className="h-4 w-4" />
                             </Button>
                             <div>
-                                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
-                                    Espace commercial
-                                </p>
                                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                                    Mes visites et rapports
+                                    Visites et rapports
                                 </h1>
                                 <p className="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
                                     Suivez les rendez-vous du jour, consultez les rapports du

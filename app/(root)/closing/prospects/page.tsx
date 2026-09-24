@@ -1044,7 +1044,7 @@ function ClosingProspectsContent() {
                                                                     
                                                                 >
                                                                     <Link
-                                                                        href={`/closing/prospects/${closingCase.id}`}
+                                                                        href={`/marketing/prospects/${closingCase.prospect_id}`}
                                                                         className="cursor-pointer"
                                                                     >
                                                                         Voir le dossier

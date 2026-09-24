@@ -111,7 +111,7 @@ export function ActivityFollowUpBoard({
 
                                     <div className="min-w-0">
                                         <div className="truncate font-medium">
-                                            {activity.prospect_name}
+                                            {activity?.prospects?.full_name}
                                         </div>
                                         <div className="truncate text-sm text-muted-foreground">
                                             {activity.titre}
