@@ -126,10 +126,55 @@ export const newActivities = async (
 };
 
 
+export type UpdateActivityStatusInput = {
+  id: string;
+  statut_activite: string;
+  description: string;
+};
+
+export const updateActivityStatus = async ({
+  id,
+  statut_activite,
+  description,
+}: UpdateActivityStatusInput) => {
+  if (!id?.trim()) {
+    throw new Error("Identifiant de l’activité manquant.");
+  }
+
+  console.log('PAYLOAD SERVICE', {  id,
+  statut_activite,
+  description,})
+
+  const { data, error } = await supabase
+    .from("prospect_activities")
+    .update({
+      statut_activite,
+      description,
+      completed_at:
+        statut_activite === "Terminée"
+          ? new Date().toISOString()
+          : null,
+    })
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+
+  if (!data) {
+    throw new Error(
+      "Activité introuvable ou accès non autorisé."
+    );
+  }
+
+  return data;
+};;
+
 
 export const updateActivity = async (
   payload: UpdateActivityInput
 ) => {
+   console.log('PAYLOADpayload', payload)
   const { id, ...updates } = payload;
 
 
@@ -137,10 +182,11 @@ export const updateActivity = async (
     .from("prospect_activities")
     .update(updates)
     .eq("id", id)
-    .select();
+    .select()
+    .single()
 
   if (error) throw new Error(error.message);
-
+ console.log('res', data)
   return data;
 };
 
