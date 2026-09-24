@@ -88,6 +88,7 @@ console.log('DATA', {id:activity.id, statut_activite: 'Terminée', description:r
                     <div className="rounded-lg border bg-muted/40 p-4">
                         <p className="text-sm text-muted-foreground">Concernant</p>
                         <p className="font-medium">{activity.prospects?.full_name}</p>
+                        <p className="font-medium">{activity.prospects?.phone}</p>
 
                         <p className="mt-2 text-sm text-muted-foreground">Activité</p>
                         <p className="font-medium">{activity.titre}</p>
