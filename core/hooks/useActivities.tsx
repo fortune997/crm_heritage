@@ -1,7 +1,12 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAcitvities, fetchAcitvitiesByID, fetchActivityFollowUps, newActivities, updateActivity } from "../services/activites/activities-service";
+import { fetchAcitvities, fetchAcitvitiesByID, fetchAcitvitiesProgramme, fetchActivityFollowUps, newActivities, updateActivity, updateActivityStatus } from "../services/activites/activities-service";
 import { toast } from "sonner";
-import { ProspectActivity } from "../types/activities";
+
+export type UpdateActivityStatusInput = {
+    id: string;
+    statut_activite: string,
+    description: string
+};
 
 export const ACTIVITIES_QUERY_KEY = ["prospect_activities"] as const;
 
@@ -13,6 +18,19 @@ export const useAcitivities = () => {
   });
 };
 
+
+ const useAcitivitiesFollowUp = (id: string, type_commercial: string) => {
+  return useQuery({
+    queryKey: [
+    "prospect-activities",
+    id,
+    type_commercial,
+  ],
+  queryFn: () => fetchAcitvitiesProgramme(type_commercial),
+  
+
+  });
+};
 
 
 const useCreateProspectActivity = () => {
@@ -88,6 +106,37 @@ const useUpdateProspectActivity = () => {
   });
 };
 
+ const useUpdateProspectActivityStatus = (
+  
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateActivityStatusInput) =>
+      updateActivityStatus(payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [
+          "prospect-activities"
+        ],
+      });
+
+      toast.success("Activité mise à jour avec succès", {
+        description: "Le traitement de l’activité a été enregistré.",
+      });
+    },
+
+    onError: (error: Error) => {
+  toast.error("Erreur lors de la mise à jour", {
+    description: error.message,
+  });
+
+  console.error("Erreur mise à jour activité :", error);
+},
+  });
+};
+
 const  useActivityFollowUps=() =>{
     return useQuery({
         queryKey: ["activity-follow-ups"],
@@ -111,5 +160,7 @@ export {
   useCreateProspectActivity,
   useUpdateProspectActivity,
   useActivityFollowUps,
-  useProspectActivitiesByID
+  useProspectActivitiesByID,
+  useAcitivitiesFollowUp,
+  useUpdateProspectActivityStatus
 }
