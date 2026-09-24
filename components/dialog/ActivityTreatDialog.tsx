@@ -50,11 +50,11 @@ type ActivityResult =
 
 export function ActivityTreatDialog({ activity }: ActivityTreatDialogProps) {
     const [open, setOpen] = useState(false);
-const { profile } = useAuth();
+
     const [result, setResult] = useState("");
     const [resultNote, setResultNote] = useState("");
 
-    const { mutate: updateActivity,  } = useUpdateProspectActivityStatus();
+    const { mutate: updateActivity,isPending  } = useUpdateProspectActivityStatus();
 
 
     const handleSubmit = () => {
@@ -142,7 +142,7 @@ console.log('DATA', {id:activity.id, statut_activite: 'Terminée', description:r
                     <Button variant="outline" onClick={() => setOpen(false)}>
                         Annuler
                     </Button>
-                    <Button onClick={handleSubmit}>Valider le traitement</Button>
+                    <Button disabled={isPending} onClick={handleSubmit}>Valider le traitement</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
