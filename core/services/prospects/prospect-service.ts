@@ -101,7 +101,7 @@ const getAllProspect = async (): Promise<TProspects[]> => {
     .order("created_at", { ascending: false });
 
   // Qualification selon le type de commercial connecté.
-  /*   switch (profile.type_commercial) {
+     switch (profile.type_commercial) {
       case "call_center":
         query = query.in("qualification", ["H1", "H2", "H3"]);
         break;
@@ -113,7 +113,7 @@ const getAllProspect = async (): Promise<TProspects[]> => {
       // Autres profils : aucun filtre de qualification.
       default:
         break;
-    } */
+    } 
 
   /*   if (!canViewAll) {
       query = query.eq("created_by", user.id);
