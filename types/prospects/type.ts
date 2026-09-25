@@ -40,7 +40,7 @@ export interface Company {
 export interface ProspectFormProps {
     initialData?: Partial<ProspectFormValues> & { id?: string };
     submitLabel?: string;
-    prospect?: TProspects;
+    prospect?: any;
     open?: boolean;
      trigger?: React.ReactNode;
      type: string;

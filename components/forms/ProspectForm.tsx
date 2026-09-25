@@ -182,8 +182,8 @@ useEffect(() => {
         <Dialog open={open} onOpenChange={setOpen}>
             
                   {trigger && (
-                        <DialogTrigger >
-                            {trigger}
+                        <DialogTrigger>
+                            {trigger }
                         </DialogTrigger>
                     )}
             
